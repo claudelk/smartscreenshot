@@ -27,12 +27,13 @@ KeystrokeTap (CGEventTap, main RunLoop)
         ▼                           (0–2 s later)
 ScreenshotWatcher (FSEvents, main RunLoop)
   - New .png detected in screenshot folder
-  - onNewFile(url) → Task { await engine.process(url) }
+  - detectedAt = Date()  ← captured in FSEvents callback
+  - onNewFile(url, detectedAt) → Task { await engine.process(url, detectedAt) }
         │
         ▼
 RenameEngine (actor)
   - sleep 0.5 s  (let macOS finish writing)
-  - store.nearest(to: fileCreationDate, within: 5 s)
+  - store.nearest(to: detectedAt, within: 10 s)
   - VisionOnlyNamer.name(image:context:) → contentSlug
   - appSlug = SlugGenerator.slug(from: context.appName)
   - mkdir  {folder}/{appSlug}_{YYYY-MM-DD}/
@@ -49,7 +50,7 @@ context is available by the time `RenameEngine` queries it. This eliminates the
 race condition where an async `store()` Task hadn't completed before `nearest()`.
 
 `nearest(to:within:)` returns the context whose `capturedAt` is closest to the
-event detection time, within a 5-second window. Entries older than 10 seconds
+event detection time, within a 10-second window. Entries older than 10 seconds
 are pruned on each write.
 
 ---

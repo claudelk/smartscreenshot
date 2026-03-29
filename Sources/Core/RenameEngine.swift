@@ -35,7 +35,8 @@ public actor RenameEngine {
 
         // Match context using the watcher's detection time — much closer to the keystroke
         // than Date() here, which can be delayed by several seconds of Task scheduling.
-        let context = store.nearest(to: detectedAt) ?? .empty
+        let matched = store.nearest(to: detectedAt)
+        let context = matched ?? .empty
 
         // Give macOS time to finish writing before we read the file
         try? await Task.sleep(nanoseconds: 500_000_000)   // 0.5 s

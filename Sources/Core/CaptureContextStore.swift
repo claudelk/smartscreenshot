@@ -21,6 +21,13 @@ public final class CaptureContextStore: @unchecked Sendable {
         self.expiryInterval = expiryInterval
     }
 
+    /// Number of entries currently in the buffer (for debugging).
+    public var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return entries.count
+    }
+
     /// Store a newly captured context. Prunes stale entries first.
     /// Safe to call synchronously from any thread (including C callbacks).
     public func store(_ context: CaptureContext) {
@@ -33,7 +40,7 @@ public final class CaptureContextStore: @unchecked Sendable {
 
     /// Returns the context whose `capturedAt` is closest to `date`,
     /// provided the difference is within `window` seconds. Returns nil if no match.
-    public func nearest(to date: Date, within window: TimeInterval = 5) -> CaptureContext? {
+    public func nearest(to date: Date, within window: TimeInterval = 10) -> CaptureContext? {
         lock.lock()
         defer { lock.unlock() }
         let now = Date()
