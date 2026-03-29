@@ -42,7 +42,21 @@ swift build -c release
 
 ---
 
-## CLI usage (Step 1 — naming brain)
+## Usage
+
+### Menu bar app (recommended)
+
+```bash
+swift build
+.build/debug/SmartScreenShot
+```
+
+A camera icon appears in the menu bar. Take a screenshot (Cmd+Shift+3/4/5) and it gets
+automatically renamed and organized.
+
+Menu options: Enable/Disable, Re-analyze Last Screenshot, Open Screenshot Folder, Preferences, Quit.
+
+### CLI (naming brain only)
 
 ```bash
 # Print slug for a screenshot
@@ -50,7 +64,12 @@ swift build -c release
 
 # Verbose: show OCR lines, scores, classification labels
 .build/debug/sst screenshot.png --verbose
-.build/debug/sst ~/Desktop/screen.png -v
+```
+
+### Daemon (headless, for debugging)
+
+```bash
+.build/debug/ssd
 ```
 
 ---
@@ -59,5 +78,5 @@ swift build -c release
 
 - **Step 1** ✅ CLI naming brain (`sst`) — Vision OCR + scene classification
 - **Step 2** ✅ Background daemon (`ssd`) — CGEventTap + FSEvents + RenameEngine
-- **Step 3** Menu bar app (NSStatusItem) + launch at login
+- **Step 3** ✅ Menu bar app (`SmartScreenShot`) — NSStatusItem + preferences + launch at login
 - **Step 4** Finder Quick Action + global hotkey

@@ -9,7 +9,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 
 | File / Folder | Purpose |
 |---|---|
-| `Package.swift` | SPM package — three targets: `sst` (CLI), `ssd` (daemon), `SmartScreenShotCore` (library) |
+| `Package.swift` | SPM package — four targets: `sst` (CLI), `ssd` (daemon), `SmartScreenShot` (menu bar app), `SmartScreenShotCore` (library) |
 | `README.md` | Project overview, build instructions, usage |
 | `PROGRESS.md` | Phase-by-phase implementation log and next steps |
 | `CLAUDE.md` | This file — canonical project structure |
@@ -29,7 +29,20 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 | `ScreenshotPreferences.swift` | Reads `com.apple.screencapture location` pref; falls back to `~/Desktop` |
 | `KeystrokeTap.swift` | CGEventTap wrapper: listens for Cmd+Shift+3/4/5, captures frontmost app |
 | `ScreenshotWatcher.swift` | FSEvents wrapper: fires when a new PNG appears in the screenshot folder |
-| `RenameEngine.swift` | Actor: matches context → names image → creates folder → moves file |
+| `RenameEngine.swift` | Actor: matches context → names image → creates folder → moves file; returns destination URL |
+
+---
+
+## Sources/App/ — `SmartScreenShot` executable target (menu bar app)
+
+| File | Purpose |
+|---|---|
+| `AppEntry.swift` | `@main` entry: NSApplication with `.accessory` policy, Accessibility check via NSAlert, wires components |
+| `PipelineController.swift` | Orchestration layer: wraps KeystrokeTap + ScreenshotWatcher + RenameEngine with start/stop lifecycle |
+| `StatusBarController.swift` | NSStatusItem + NSMenu: Enable/Disable, Re-analyze Last, Open Folder, Preferences, Quit |
+| `PreferencesStore.swift` | UserDefaults wrapper for all settings (enabled, namer tier, launch at login, browser capture) |
+| `PreferencesWindow.swift` | Programmatic NSWindow: tier selection, launch at login, stubbed browser/hotkey options |
+| `LaunchAtLogin.swift` | Install/uninstall `~/Library/LaunchAgents/com.smartscreenshot.plist` |
 
 ---
 
@@ -55,6 +68,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 |---|---|
 | `vision-only-namer.md` | Tier 1 design, slug algorithm, tier roadmap |
 | `daemon.md` | Step 2 daemon design: event flow, timing strategy, folder structure |
+| `menu-bar-app.md` | Step 3 menu bar app: NSStatusItem, preferences, launch at login |
 
 ---
 

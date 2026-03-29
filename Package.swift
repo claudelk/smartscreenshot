@@ -17,6 +17,12 @@ let package = Package(
             dependencies: ["SmartScreenShotCore"],
             path: "Sources/Daemon"
         ),
+        // Menu bar app — NSStatusItem with enable/disable, preferences, launch at login
+        .executableTarget(
+            name: "SmartScreenShot",
+            dependencies: ["SmartScreenShotCore"],
+            path: "Sources/App"
+        ),
         // Shared library — all naming tiers, daemon types, slug logic
         .target(
             name: "SmartScreenShotCore",

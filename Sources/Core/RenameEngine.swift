@@ -25,12 +25,13 @@ public actor RenameEngine {
 
     /// - Parameter detectedAt: timestamp from the FSEvents callback — use this for
     ///   context matching instead of `Date()`, which can be seconds later due to Task scheduling.
-    public func process(newFile url: URL, detectedAt: Date) async {
+    @discardableResult
+    public func process(newFile url: URL, detectedAt: Date) async -> URL? {
         let path = url.path
 
         // Debounce: skip if we processed this path in the last 3 seconds
         pruneRecent()
-        guard recentlyProcessed[path] == nil else { return }
+        guard recentlyProcessed[path] == nil else { return nil }
         recentlyProcessed[path] = Date()
 
         // Match context using the watcher's detection time — much closer to the keystroke
@@ -43,12 +44,12 @@ public actor RenameEngine {
 
         guard FileManager.default.fileExists(atPath: path) else {
             print("[RenameEngine] file vanished before processing: \(url.lastPathComponent)")
-            return
+            return nil
         }
 
         guard let image = loadCGImage(from: url) else {
             print("[RenameEngine] could not load image: \(url.lastPathComponent)")
-            return
+            return nil
         }
 
         // Generate content slug via the active namer tier
@@ -57,7 +58,7 @@ public actor RenameEngine {
             contentSlug = try await namer.name(image: image, context: context)
         } catch {
             print("[RenameEngine] naming failed — \(error.localizedDescription)")
-            return
+            return nil
         }
 
         // Use context capturedAt for accurate timestamps; fall back to file creation date
@@ -89,8 +90,10 @@ public actor RenameEngine {
             try FileManager.default.moveItem(at: url, to: destFile)
             print("[RenameEngine] \(url.lastPathComponent)")
             print("           → \(folderName)/\(destFile.lastPathComponent)")
+            return destFile
         } catch {
             print("[RenameEngine] move failed — \(error.localizedDescription)")
+            return nil
         }
     }
 

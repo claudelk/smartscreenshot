@@ -63,12 +63,34 @@ swift build
 
 ---
 
-## Step 3 — Menu bar app (planned)
+## Step 3 — Menu bar app ✅ (2026-03-29)
 
-- `NSStatusItem` (no Dock icon)
-- Menu: Enable/Disable, Re-analyze last, Open folder, Preferences, Quit
-- Preferences: namer tier selection, hotkey config, browser URL capture toggle
-- **Launch at login** — register `~/Library/LaunchAgents/com.smartscreenshot.plist` on first run; unregister on uninstall
+**Goal:** proper macOS menu bar app replacing the CLI daemon with GUI controls.
+
+### Implemented
+- `SmartScreenShot` SPM executable target (`Sources/App/`)
+- `AppEntry.swift` — `@main` with `NSApplication.setActivationPolicy(.accessory)` (no Dock icon), Accessibility check via NSAlert
+- `PipelineController.swift` — wraps KeystrokeTap + ScreenshotWatcher + RenameEngine with `start()`/`stop()` lifecycle; tracks last processed file for re-analyze
+- `StatusBarController.swift` — NSStatusItem with SF Symbol `camera.viewfinder`, NSMenu with Enable/Disable, Re-analyze Last, Open Folder, Preferences, Quit
+- `PreferencesStore.swift` — UserDefaults wrapper (`com.smartscreenshot.app` suite)
+- `PreferencesWindow.swift` — programmatic NSWindow with tier selection, launch at login, stubbed browser/hotkey options
+- `LaunchAtLogin.swift` — installs/uninstalls `~/Library/LaunchAgents/com.smartscreenshot.plist`
+- `RenameEngine.process()` now returns `@discardableResult URL?` for destination tracking
+
+### Design decisions
+- SPM-only (no Xcode project) — `.setActivationPolicy(.accessory)` replaces `LSUIElement` in Info.plist
+- SF Symbol `camera.viewfinder` adapts to dark/light mode automatically
+- NSMenuDelegate updates toggle title and re-analyze state each time menu opens
+- PipelineController extracts DaemonEntry wiring pattern into a class with lifecycle control
+- `ssd` daemon target stays for headless/debugging use
+- Tier 2/3 and browser URL options visible but disabled in Preferences (future work)
+
+### Test it
+```bash
+swift build
+.build/debug/SmartScreenShot
+# Camera icon appears in menu bar — take a screenshot to test
+```
 
 ---
 
