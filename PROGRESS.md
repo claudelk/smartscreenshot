@@ -185,12 +185,33 @@ export APP_PASSWORD="xxxx-xxxx-xxxx-xxxx"
 
 ---
 
-## Step 8 — Trial / paid licensing (planned)
+## Step 8 — Trial / paid licensing ✅ (2026-03-30)
 
-- **Trial mode** — free tier with daily screenshot limit (e.g. 5/day)
-- **Paid version** — one-time purchase ($4.99 lifetime), unlocks unlimited renames
-- Local-only license validation (no server, no accounts) — details TBD
-- Gated at rename time — trial users see a prompt after exceeding daily limit
+**Goal:** monetize with a 5/day free trial and $4.99 lifetime unlock via LemonSqueezy.
+
+### Implemented
+- `LicenseManager` — central class for trial counting + license activation + Keychain storage
+- Trial: 5 renames/day, counter in UserDefaults with date stamp, resets at midnight
+- Activation: one-time `POST /v1/licenses/activate` to LemonSqueezy API, response cached in macOS Keychain (TOFU model)
+- Keychain storage via Security framework (`SecItemAdd`/`SecItemCopyMatching`/`SecItemDelete`)
+- All three rename pathways gated: auto-rename (FSEvents), global hotkey, batch rename
+- Re-analyze NOT gated (correction, not new rename)
+- Menu bar: trial status display ("Trial: 3/5 remaining today" / "Licensed ✓") + "Buy Full Version ($4.99)" item
+- Preferences: license section with key input field, Activate button, Buy License button
+- UNUserNotificationCenter for background trial limit alerts
+- NSAlert for foreground trial limit + partial batch warnings
+- Product ID validation prevents cross-product key reuse
+
+### Design decisions
+- **LemonSqueezy + TOFU** — one activation call, then trust Keychain forever. Sufficient for $4.99.
+- **Keychain over UserDefaults** — more tamper-resistant, standard for license data
+- **Gate in App layer, not Core** — RenameEngine stays pure, Core remains dependency-free
+- **No aggressive DRM** — clock manipulation accepted, no anti-tamper beyond Keychain
+
+### LemonSqueezy setup (TODO)
+1. Create store + product at lemonsqueezy.com
+2. Update `LicenseManager.purchaseURL` with checkout link
+3. Update `LicenseManager.expectedProductId` with product ID
 
 ---
 

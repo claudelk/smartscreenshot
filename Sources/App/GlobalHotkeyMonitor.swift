@@ -10,15 +10,18 @@ final class GlobalHotkeyMonitor {
     private var monitor: Any?
     private let preferencesStore: PreferencesStore
     private let engine: RenameEngine
+    private let licenseManager: LicenseManager
     private let screenshotFolder: () -> URL
 
     init(
         preferencesStore: PreferencesStore,
         engine: RenameEngine,
+        licenseManager: LicenseManager,
         screenshotFolder: @escaping () -> URL
     ) {
         self.preferencesStore = preferencesStore
         self.engine = engine
+        self.licenseManager = licenseManager
         self.screenshotFolder = screenshotFolder
     }
 
@@ -54,6 +57,11 @@ final class GlobalHotkeyMonitor {
     // MARK: - Private
 
     private func renameNewestScreenshot() {
+        guard licenseManager.consumeRename() else {
+            LicenseManager.postTrialLimitNotification()
+            return
+        }
+
         let folder = screenshotFolder()
         guard let newest = newestScreenshot(in: folder) else {
             print("[GlobalHotkeyMonitor] no unprocessed screenshot found in \(folder.path)")

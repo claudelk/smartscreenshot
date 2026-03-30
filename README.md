@@ -107,4 +107,4 @@ See [docs/code-signing.md](docs/code-signing.md) for prerequisites and setup.
 - **Step 5** ✅ Code signing & notarization (Developer ID + DMG)
 - **Step 6** Enhanced naming — `FoundationModelsNamer` (macOS 26+, Apple Intelligence)
 - **Step 7** Advanced naming — `FastVLMNamer` (Apple Silicon, on-device VLM via MLX)
-- **Step 8** Trial / paid licensing (5/day free, $4.99 lifetime unlock)
+- **Step 8** ✅ Trial / paid licensing (5/day free, $4.99 lifetime unlock via LemonSqueezy)

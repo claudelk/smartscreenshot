@@ -34,8 +34,9 @@ struct SmartScreenShotApp {
 
         // Build components
         let prefsStore = PreferencesStore()
-        let pipeline = PipelineController(preferencesStore: prefsStore)
-        let statusBar = StatusBarController(pipeline: pipeline, preferencesStore: prefsStore)
+        let licenseManager = LicenseManager()
+        let pipeline = PipelineController(preferencesStore: prefsStore, licenseManager: licenseManager)
+        let statusBar = StatusBarController(pipeline: pipeline, preferencesStore: prefsStore, licenseManager: licenseManager)
 
         // Start the pipeline if enabled (default: true on first launch)
         if prefsStore.isEnabled {
@@ -45,7 +46,7 @@ struct SmartScreenShotApp {
         print("SmartScreenShot ready.")
 
         // Keep strong references alive for the app lifetime
-        withExtendedLifetime((statusBar, pipeline, prefsStore)) {
+        withExtendedLifetime((statusBar, pipeline, prefsStore, licenseManager)) {
             app.run()
         }
     }

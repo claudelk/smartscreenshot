@@ -6,15 +6,21 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
 
     private var window: NSWindow?
     private let preferencesStore: PreferencesStore
+    private let licenseManager: LicenseManager
     private let launchAgent = LaunchAtLogin()
     private var folderLabel: NSTextField?
+    private var licenseKeyField: NSTextField?
+    private var licenseStatusLabel: NSTextField?
     /// Called when the screenshot folder changes so the pipeline can restart.
     var onFolderChanged: (() -> Void)?
     /// Called when the hotkey enabled state changes so the pipeline can restart the monitor.
     var onHotkeyChanged: (() -> Void)?
+    /// Called when the license state changes so the window can be reconstructed.
+    var onLicenseChanged: (() -> Void)?
 
-    init(preferencesStore: PreferencesStore) {
+    init(preferencesStore: PreferencesStore, licenseManager: LicenseManager) {
         self.preferencesStore = preferencesStore
+        self.licenseManager = licenseManager
         super.init()
     }
 
@@ -26,7 +32,7 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         }
 
         let w = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 320),
+            contentRect: NSRect(x: 0, y: 0, width: 460, height: 420),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -39,7 +45,43 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         let content = NSView(frame: w.contentView!.bounds)
         content.autoresizingMask = [.width, .height]
 
-        var y: CGFloat = 275
+        var y: CGFloat = 375
+
+        // --- License ---
+        content.addSubview(makeLabel("License:", at: y))
+
+        let statusLabel = NSTextField(labelWithString: "")
+        statusLabel.frame = NSRect(x: 160, y: y, width: 280, height: 20)
+        statusLabel.font = .systemFont(ofSize: 12)
+        self.licenseStatusLabel = statusLabel
+        updateLicenseStatusLabel()
+        content.addSubview(statusLabel)
+
+        y -= 30
+
+        if !licenseManager.isLicensed {
+            let keyField = NSTextField(frame: NSRect(x: 20, y: y, width: 310, height: 24))
+            keyField.placeholderString = "Paste license key (UUID)"
+            keyField.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
+            self.licenseKeyField = keyField
+            content.addSubview(keyField)
+
+            let activateButton = NSButton(title: "Activate", target: self, action: #selector(activateLicense(_:)))
+            activateButton.bezelStyle = .rounded
+            activateButton.frame = NSRect(x: 340, y: y - 2, width: 100, height: 28)
+            content.addSubview(activateButton)
+
+            y -= 30
+
+            let buyButton = NSButton(title: "Buy License ($4.99)", target: self, action: #selector(openPurchase(_:)))
+            buyButton.bezelStyle = .rounded
+            buyButton.frame = NSRect(x: 20, y: y, width: 160, height: 28)
+            content.addSubview(buyButton)
+
+            y -= 15
+        }
+
+        y -= 20
 
         // --- Screenshot Folder ---
         content.addSubview(makeLabel("Save screenshots to:", at: y))
@@ -187,6 +229,61 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
     @objc private func hotkeyToggled(_ sender: NSButton) {
         preferencesStore.hotkeyEnabled = sender.state == .on
         onHotkeyChanged?()
+    }
+
+    @objc private func activateLicense(_ sender: NSButton) {
+        guard let key = licenseKeyField?.stringValue, !key.isEmpty else { return }
+        sender.isEnabled = false
+        Task {
+            do {
+                let success = try await licenseManager.activate(key: key)
+                await MainActor.run {
+                    sender.isEnabled = true
+                    if success {
+                        updateLicenseStatusLabel()
+                        let alert = NSAlert()
+                        alert.messageText = "License Activated"
+                        alert.informativeText = "Thank you! SmartScreenShot is now fully licensed."
+                        alert.alertStyle = .informational
+                        alert.runModal()
+                        // Force window reconstruction to remove key field
+                        window?.close()
+                        window = nil
+                        onLicenseChanged?()
+                    } else {
+                        let alert = NSAlert()
+                        alert.messageText = "Invalid License Key"
+                        alert.informativeText = "The key could not be activated. Please check it and try again."
+                        alert.alertStyle = .warning
+                        alert.runModal()
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    sender.isEnabled = true
+                    let alert = NSAlert()
+                    alert.messageText = "Activation Failed"
+                    alert.informativeText = "Could not connect to the license server. Please check your internet connection and try again."
+                    alert.alertStyle = .warning
+                    alert.runModal()
+                }
+            }
+        }
+    }
+
+    @objc private func openPurchase(_ sender: NSButton) {
+        NSWorkspace.shared.open(LicenseManager.purchaseURL)
+    }
+
+    private func updateLicenseStatusLabel() {
+        switch licenseManager.status {
+        case .trial(let remaining):
+            licenseStatusLabel?.stringValue = "Trial: \(remaining)/\(LicenseManager.dailyLimit) remaining today"
+            licenseStatusLabel?.textColor = remaining > 0 ? .secondaryLabelColor : .systemOrange
+        case .licensed:
+            licenseStatusLabel?.stringValue = "Licensed \u{2713}"
+            licenseStatusLabel?.textColor = .systemGreen
+        }
     }
 
     // MARK: - Helpers

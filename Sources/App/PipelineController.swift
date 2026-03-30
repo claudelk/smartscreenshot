@@ -14,6 +14,7 @@ final class PipelineController {
     private let namer: VisionOnlyNamer
     private let engine: RenameEngine
     private let preferencesStore: PreferencesStore
+    private let licenseManager: LicenseManager
     private var watcher: ScreenshotWatcher?
     private var tap: KeystrokeTap?
     private var hotkeyMonitor: GlobalHotkeyMonitor?
@@ -23,8 +24,9 @@ final class PipelineController {
     /// Destination path after the most recent rename.
     private(set) var lastDestinationURL: URL?
 
-    init(preferencesStore: PreferencesStore) {
+    init(preferencesStore: PreferencesStore, licenseManager: LicenseManager) {
         self.preferencesStore = preferencesStore
+        self.licenseManager = licenseManager
         self.store = CaptureContextStore()
         self.namer = VisionOnlyNamer()
         self.engine = RenameEngine(namer: namer, store: store)
@@ -39,6 +41,10 @@ final class PipelineController {
         watcher = ScreenshotWatcher(folderURL: screenshotFolder) { [weak self] url, detectedAt in
             guard let self else { return }
             self.lastDetectedURL = url
+            guard self.licenseManager.consumeRename() else {
+                LicenseManager.postTrialLimitNotification()
+                return
+            }
             Task {
                 let dest = await self.engine.process(newFile: url, detectedAt: detectedAt)
                 if let dest { self.lastDestinationURL = dest }
@@ -102,6 +108,7 @@ final class PipelineController {
         let monitor = GlobalHotkeyMonitor(
             preferencesStore: preferencesStore,
             engine: engine,
+            licenseManager: licenseManager,
             screenshotFolder: { [weak self] in
                 self?.preferencesStore.screenshotFolder ?? URL(fileURLWithPath: NSHomeDirectory() + "/Desktop")
             }
