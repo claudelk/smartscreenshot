@@ -54,9 +54,9 @@ swift build
 A camera icon appears in the menu bar. Take a screenshot (Cmd+Shift+3/4/5) and it gets
 automatically renamed and organized.
 
-Menu options: Enable/Disable, Re-analyze Last Screenshot, Open Screenshot Folder, Preferences, Quit.
+Menu options: Enable/Disable, Re-analyze Last Screenshot, Batch Rename Screenshots, Open Screenshot Folder, Preferences, Quit.
 
-### CLI (naming brain only)
+### CLI
 
 ```bash
 # Print slug for a screenshot
@@ -64,6 +64,10 @@ Menu options: Enable/Disable, Re-analyze Last Screenshot, Open Screenshot Folder
 
 # Verbose: show OCR lines, scores, classification labels
 .build/debug/sst screenshot.png --verbose
+
+# Batch rename existing screenshots
+.build/debug/sst --rename screenshot1.png screenshot2.png
+.build/debug/sst --rename ~/Desktop/Screenshot*.png
 ```
 
 ### Daemon (headless, for debugging)
@@ -79,7 +83,7 @@ Menu options: Enable/Disable, Re-analyze Last Screenshot, Open Screenshot Folder
 - **Step 1** ✅ CLI naming brain (`sst`) — Vision OCR + scene classification
 - **Step 2** ✅ Background daemon (`ssd`) — CGEventTap + FSEvents + RenameEngine
 - **Step 3** ✅ Menu bar app (`SmartScreenShot`) — NSStatusItem + preferences + launch at login
-- **Step 4** Finder Quick Action (batch rename) + global hotkey
+- **Step 4** ✅ Batch rename (menu bar + CLI) + global hotkey
 - **Step 5** Code signing & notarization (Developer ID)
 - **Step 6** Enhanced naming — `FoundationModelsNamer` (macOS 26+, Apple Intelligence)
 - **Step 7** Advanced naming — `FastVLMNamer` (Apple Silicon, on-device VLM via MLX)

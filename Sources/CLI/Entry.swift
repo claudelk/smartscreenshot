@@ -7,12 +7,29 @@ import SmartScreenShotCore
 struct SmartScreenShotCLI {
 
     static func main() async {
-        guard let args = parseArgs() else {
+        let parsed = parseArgs()
+
+        switch parsed {
+        case .help:
+            printUsage()
+            exit(0)
+
+        case .invalid:
             printUsage()
             exit(1)
-        }
 
-        let resolvedPath = resolvePath(args.imagePath)
+        case .rename(let paths):
+            await runRename(paths: paths)
+
+        case .analyze(let path, let verbose):
+            await runAnalyze(path: path, verbose: verbose)
+        }
+    }
+
+    // MARK: - Modes
+
+    private static func runAnalyze(path: String, verbose: Bool) async {
+        let resolvedPath = resolvePath(path)
 
         guard FileManager.default.fileExists(atPath: resolvedPath) else {
             fputs("error: file not found — \(resolvedPath)\n", stderr)
@@ -27,7 +44,7 @@ struct SmartScreenShotCLI {
         let namer = VisionOnlyNamer()
 
         do {
-            if args.verbose {
+            if verbose {
                 let (ocrLines, classifications) = try await namer.analyze(image: image)
 
                 print("=== OCR Results (\(ocrLines.count) lines) ===")
@@ -68,27 +85,73 @@ struct SmartScreenShotCLI {
         }
     }
 
+    private static func runRename(paths: [String]) async {
+        let namer = VisionOnlyNamer()
+        let store = CaptureContextStore()
+        let engine = RenameEngine(namer: namer, store: store)
+
+        var succeeded = 0
+        var failed = 0
+
+        for path in paths {
+            let resolved = resolvePath(path)
+            let url = URL(fileURLWithPath: resolved)
+
+            guard FileManager.default.fileExists(atPath: resolved) else {
+                fputs("skip: file not found — \(path)\n", stderr)
+                failed += 1
+                continue
+            }
+
+            if let dest = await engine.processManual(file: url) {
+                succeeded += 1
+                _ = dest  // Output already printed by RenameEngine
+            } else {
+                failed += 1
+            }
+        }
+
+        if paths.count > 1 {
+            print("\nRenamed \(succeeded)/\(paths.count) files" +
+                  (failed > 0 ? " (\(failed) failed)" : ""))
+        }
+    }
+
     // MARK: - Argument parsing
 
-    private static func parseArgs() -> (imagePath: String, verbose: Bool)? {
-        var args = CommandLine.arguments.dropFirst()
-        var verbose = false
-        var imagePath: String?
+    private enum ParsedArgs {
+        case analyze(path: String, verbose: Bool)
+        case rename(paths: [String])
+        case help
+        case invalid
+    }
 
-        while let arg = args.first {
-            args = args.dropFirst()
+    private static func parseArgs() -> ParsedArgs {
+        let args = Array(CommandLine.arguments.dropFirst())
+        var verbose = false
+        var renameMode = false
+        var paths: [String] = []
+
+        for arg in args {
             switch arg {
             case "--verbose", "-v":
                 verbose = true
             case "--help", "-h":
-                return nil
+                return .help
+            case "--rename", "-r":
+                renameMode = true
             default:
-                if !arg.hasPrefix("-") { imagePath = arg }
+                if !arg.hasPrefix("-") { paths.append(arg) }
             }
         }
 
-        guard let path = imagePath else { return nil }
-        return (path, verbose)
+        if renameMode {
+            guard !paths.isEmpty else { return .invalid }
+            return .rename(paths: paths)
+        }
+
+        guard let path = paths.first else { return .invalid }
+        return .analyze(path: path, verbose: verbose)
     }
 
     // MARK: - Path helpers
@@ -116,9 +179,14 @@ struct SmartScreenShotCLI {
     private static func printUsage() {
         print("""
         Usage: sst <image-path> [--verbose]
+               sst --rename <file1> [file2] ...
 
         Analyzes a screenshot with Apple Vision OCR + scene classification
         and prints a kebab-case filename slug to stdout.
+
+        Modes:
+          (default)        Print slug only (pipe-friendly)
+          -r, --rename     Rename files in place into screenshot_{date}/ folders
 
         Options:
           -v, --verbose    Print OCR lines, confidence scores, and classification labels
@@ -127,7 +195,8 @@ struct SmartScreenShotCLI {
         Examples:
           sst screenshot.png
           sst ~/Desktop/screen.png --verbose
-          sst /tmp/game.png -v
+          sst --rename screenshot1.png screenshot2.png
+          sst --rename ~/Desktop/Screenshot*.png
         """)
     }
 }

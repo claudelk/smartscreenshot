@@ -97,6 +97,56 @@ public actor RenameEngine {
         }
     }
 
+    /// Manually rename a file that already exists on disk.
+    /// Skips write-settle delay, debounce, and context lookup — always uses `.empty` context.
+    /// Designed for batch rename (Finder Quick Action, CLI --rename, menu bar batch).
+    @discardableResult
+    public func processManual(file url: URL) async -> URL? {
+        let path = url.path
+        guard FileManager.default.fileExists(atPath: path) else {
+            print("[RenameEngine] file not found: \(url.lastPathComponent)")
+            return nil
+        }
+
+        guard let image = loadCGImage(from: url) else {
+            print("[RenameEngine] could not load image: \(url.lastPathComponent)")
+            return nil
+        }
+
+        let contentSlug: String
+        do {
+            contentSlug = try await namer.name(image: image, context: .empty)
+        } catch {
+            print("[RenameEngine] naming failed — \(error.localizedDescription)")
+            return nil
+        }
+
+        let fileDate = creationDate(of: url)
+        let folderName = "screenshot_\(dateString(from: fileDate))"
+        let baseName   = "\(contentSlug)_\(timeString(from: fileDate))"
+
+        let baseDir    = url.deletingLastPathComponent()
+        let destFolder = baseDir.appendingPathComponent(folderName)
+        var destFile   = destFolder.appendingPathComponent("\(baseName).png")
+
+        var counter = 1
+        while FileManager.default.fileExists(atPath: destFile.path) {
+            destFile = destFolder.appendingPathComponent("\(baseName)_\(counter).png")
+            counter += 1
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: destFolder, withIntermediateDirectories: true)
+            try FileManager.default.moveItem(at: url, to: destFile)
+            print("[RenameEngine] \(url.lastPathComponent)")
+            print("           → \(folderName)/\(destFile.lastPathComponent)")
+            return destFile
+        } catch {
+            print("[RenameEngine] move failed — \(error.localizedDescription)")
+            return nil
+        }
+    }
+
     // MARK: - Helpers
 
     private func pruneRecent() {

@@ -17,6 +17,9 @@ final class PreferencesStore {
             Keys.namerTier: "vision-only",
             Keys.launchAtLogin: false,
             Keys.browserCaptureEnabled: false,
+            Keys.hotkeyEnabled: false,
+            Keys.hotkeyKeyCode: 1,         // "s" key
+            Keys.hotkeyModifiers: "control,option",
         ])
     }
 
@@ -28,6 +31,9 @@ final class PreferencesStore {
         static let launchAtLogin = "launchAtLogin"
         static let browserCaptureEnabled = "browserCaptureEnabled"
         static let screenshotFolderOverride = "screenshotFolderOverride"
+        static let hotkeyEnabled = "hotkeyEnabled"
+        static let hotkeyKeyCode = "hotkeyKeyCode"
+        static let hotkeyModifiers = "hotkeyModifiers"
     }
 
     // MARK: - Properties
@@ -50,6 +56,48 @@ final class PreferencesStore {
     var browserCaptureEnabled: Bool {
         get { defaults.bool(forKey: Keys.browserCaptureEnabled) }
         set { defaults.set(newValue, forKey: Keys.browserCaptureEnabled) }
+    }
+
+    // MARK: - Hotkey
+
+    var hotkeyEnabled: Bool {
+        get { defaults.bool(forKey: Keys.hotkeyEnabled) }
+        set { defaults.set(newValue, forKey: Keys.hotkeyEnabled) }
+    }
+
+    /// Virtual keyCode (e.g. 1 = "s", 0 = "a"). See Events.h for full list.
+    var hotkeyKeyCode: Int {
+        get { defaults.integer(forKey: Keys.hotkeyKeyCode) }
+        set { defaults.set(newValue, forKey: Keys.hotkeyKeyCode) }
+    }
+
+    /// Comma-separated modifier names: "control", "option", "command", "shift".
+    var hotkeyModifiers: String {
+        get { defaults.string(forKey: Keys.hotkeyModifiers) ?? "control,option" }
+        set { defaults.set(newValue, forKey: Keys.hotkeyModifiers) }
+    }
+
+    /// Human-readable hotkey description.
+    var hotkeyDescription: String {
+        var parts: [String] = []
+        if hotkeyModifiers.contains("control") { parts.append("\u{2303}") }
+        if hotkeyModifiers.contains("option") { parts.append("\u{2325}") }
+        if hotkeyModifiers.contains("shift") { parts.append("\u{21E7}") }
+        if hotkeyModifiers.contains("command") { parts.append("\u{2318}") }
+        parts.append(keyCodeToString(hotkeyKeyCode))
+        return parts.joined()
+    }
+
+    private func keyCodeToString(_ code: Int) -> String {
+        switch code {
+        case 0: return "A"
+        case 1: return "S"
+        case 2: return "D"
+        case 3: return "F"
+        case 8: return "C"
+        case 15: return "R"
+        default: return "Key(\(code))"
+        }
     }
 
     /// Custom screenshot folder override. When nil, falls back to macOS system preference.

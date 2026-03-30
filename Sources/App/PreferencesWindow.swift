@@ -10,6 +10,8 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
     private var folderLabel: NSTextField?
     /// Called when the screenshot folder changes so the pipeline can restart.
     var onFolderChanged: (() -> Void)?
+    /// Called when the hotkey enabled state changes so the pipeline can restart the monitor.
+    var onHotkeyChanged: (() -> Void)?
 
     init(preferencesStore: PreferencesStore) {
         self.preferencesStore = preferencesStore
@@ -110,21 +112,25 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
 
         y -= 40
 
-        // --- Global Hotkey (Step 4 stub) ---
+        // --- Global Hotkey ---
         let hotkeyCheckbox = NSButton(
             checkboxWithTitle: "Global hotkey for rename",
-            target: nil,
-            action: nil
+            target: self,
+            action: #selector(hotkeyToggled(_:))
         )
         hotkeyCheckbox.frame.origin = NSPoint(x: 20, y: y)
-        hotkeyCheckbox.state = .off
-        hotkeyCheckbox.isEnabled = false
+        hotkeyCheckbox.state = preferencesStore.hotkeyEnabled ? .on : .off
         content.addSubview(hotkeyCheckbox)
 
-        let hotkeyNote = makeLabel("Coming in a future update", at: y, size: 11, color: .secondaryLabelColor)
-        hotkeyNote.frame.origin.x = 230
-        hotkeyNote.frame.size.width = 180
-        content.addSubview(hotkeyNote)
+        let hotkeyLabel = makeLabel(
+            preferencesStore.hotkeyDescription,
+            at: y,
+            size: 12,
+            color: .secondaryLabelColor
+        )
+        hotkeyLabel.frame.origin.x = 230
+        hotkeyLabel.frame.size.width = 120
+        content.addSubview(hotkeyLabel)
 
         w.contentView = content
         w.makeKeyAndOrderFront(nil)
@@ -176,6 +182,11 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
 
     @objc private func browserCaptureToggled(_ sender: NSButton) {
         preferencesStore.browserCaptureEnabled = sender.state == .on
+    }
+
+    @objc private func hotkeyToggled(_ sender: NSButton) {
+        preferencesStore.hotkeyEnabled = sender.state == .on
+        onHotkeyChanged?()
     }
 
     // MARK: - Helpers

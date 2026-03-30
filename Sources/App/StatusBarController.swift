@@ -1,4 +1,6 @@
 import AppKit
+import SmartScreenShotCore
+import UniformTypeIdentifiers
 
 /// Manages the NSStatusItem and its dropdown menu.
 final class StatusBarController: NSObject, NSMenuDelegate {
@@ -52,6 +54,15 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         reanalyzeItem.target = self
         reanalyzeItem.tag = 100
         menu.addItem(reanalyzeItem)
+
+        // Batch rename
+        let batchItem = NSMenuItem(
+            title: "Batch Rename Screenshots\u{2026}",
+            action: #selector(batchRename(_:)),
+            keyEquivalent: ""
+        )
+        batchItem.target = self
+        menu.addItem(batchItem)
 
         // Open folder
         let openFolderItem = NSMenuItem(
@@ -116,6 +127,34 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         pipeline.reanalyzeLast()
     }
 
+    @objc private func batchRename(_ sender: NSMenuItem) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = true
+        panel.allowedContentTypes = [.png, .jpeg]
+        panel.message = "Select screenshots to rename"
+        panel.prompt = "Rename"
+        panel.directoryURL = pipeline.screenshotFolder
+
+        guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
+
+        let urls = panel.urls
+        let namer = VisionOnlyNamer()
+        let store = CaptureContextStore()
+        let engine = RenameEngine(namer: namer, store: store)
+
+        Task {
+            var succeeded = 0
+            for url in urls {
+                if let _ = await engine.processManual(file: url) {
+                    succeeded += 1
+                }
+            }
+            print("[BatchRename] Renamed \(succeeded)/\(urls.count) files")
+        }
+    }
+
     @objc private func openFolder(_ sender: NSMenuItem) {
         NSWorkspace.shared.open(pipeline.screenshotFolder)
     }
@@ -127,6 +166,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
                 guard let self, self.pipeline.state == .running else { return }
                 self.pipeline.stop()
                 self.pipeline.start()
+            }
+            pw.onHotkeyChanged = { [weak self] in
+                self?.pipeline.restartHotkeyMonitor()
             }
             preferencesWindow = pw
         }

@@ -16,6 +16,7 @@ final class PipelineController {
     private let preferencesStore: PreferencesStore
     private var watcher: ScreenshotWatcher?
     private var tap: KeystrokeTap?
+    private var hotkeyMonitor: GlobalHotkeyMonitor?
 
     /// Most recent file detected by the watcher (original path before rename).
     private(set) var lastDetectedURL: URL?
@@ -53,6 +54,8 @@ final class PipelineController {
             print("[PipelineController] tap start failed: \(error.localizedDescription)")
         }
 
+        startHotkeyMonitor()
+
         state = .running
         print("[PipelineController] started")
     }
@@ -63,6 +66,8 @@ final class PipelineController {
         watcher = nil
         tap?.stop()
         tap = nil
+        hotkeyMonitor?.stop()
+        hotkeyMonitor = nil
         state = .stopped
         print("[PipelineController] stopped")
     }
@@ -79,6 +84,29 @@ final class PipelineController {
         }
     }
 
+    /// Restart the global hotkey monitor (e.g. after preferences change).
+    func restartHotkeyMonitor() {
+        hotkeyMonitor?.stop()
+        hotkeyMonitor = nil
+        if state == .running {
+            startHotkeyMonitor()
+        }
+    }
+
     /// The screenshot folder being watched.
     var screenshotFolder: URL { preferencesStore.screenshotFolder }
+
+    // MARK: - Private
+
+    private func startHotkeyMonitor() {
+        let monitor = GlobalHotkeyMonitor(
+            preferencesStore: preferencesStore,
+            engine: engine,
+            screenshotFolder: { [weak self] in
+                self?.preferencesStore.screenshotFolder ?? URL(fileURLWithPath: NSHomeDirectory() + "/Desktop")
+            }
+        )
+        monitor.start()
+        self.hotkeyMonitor = monitor
+    }
 }

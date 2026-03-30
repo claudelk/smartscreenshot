@@ -94,14 +94,35 @@ swift build
 
 ---
 
-## Step 4 — Finder Quick Action + global hotkey (planned)
+## Step 4 — Batch rename + global hotkey ✅ (2026-03-29)
 
-- **Finder Quick Action** — right-click one or multiple screenshots in Finder → "Rename with SmartScreenShot"
-  - Supports batch selection: select 20 files, rename them all in one swoop
-  - Calls the same `VisionOnlyNamer` + `SlugGenerator` pipeline
-  - Great for retroactively renaming old screenshots
-- **Global hotkey** — configurable keyboard shortcut (e.g. Ctrl+Option+S) to manually trigger rename on the most recent screenshot
-  - Hooks into the existing Preferences hotkey stub
+**Goal:** manual triggers for the naming pipeline — batch rename existing files + global hotkey for quick single-file rename.
+
+### Implemented
+- `RenameEngine.processManual(file:)` — manual rename path: skips write-settle delay, debounce, and context lookup; always uses `.empty` context
+- `sst --rename` CLI mode — batch rename files in place: `sst --rename file1.png file2.png`
+- "Batch Rename Screenshots..." menu item — opens NSOpenPanel (multi-select, PNG/JPEG filter), renames all selected files
+- `GlobalHotkeyMonitor` — `NSEvent.addGlobalMonitorForEvents(matching: .keyDown)`, filters for configured key combo, renames newest unprocessed screenshot
+- Hotkey preferences in `PreferencesStore` — enabled/disabled, keyCode, modifiers (default: Ctrl+Option+S)
+- Hotkey checkbox in PreferencesWindow — fully functional, restarts monitor on toggle
+
+### Design decisions
+- `processManual` is a separate method from `process(newFile:detectedAt:)` to avoid touching the auto-rename path — no settle delay, no debounce, no context store lookup
+- Batch rename creates a fresh `RenameEngine` instance to avoid interfering with the live pipeline's debounce state
+- Global hotkey uses `NSEvent.addGlobalMonitorForEvents` (not Carbon `RegisterEventHotKey`) — simpler, Swift-native, sufficient for observe-only use case
+- Hotkey finds newest `Screenshot *.png` in the screenshot folder (direct children only, skips subfolders which are already renamed)
+
+### Test it
+```bash
+# CLI batch rename
+sst --rename ~/Desktop/Screenshot*.png
+
+# Menu bar
+# Click "Batch Rename Screenshots..." → select files → renamed
+
+# Global hotkey
+# Enable in Preferences → press Ctrl+Option+S → newest screenshot renamed
+```
 
 ---
 
