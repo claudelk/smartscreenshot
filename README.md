@@ -105,6 +105,6 @@ See [docs/code-signing.md](docs/code-signing.md) for prerequisites and setup.
 - **Step 3** ✅ Menu bar app (`SmartScreenShot`) — NSStatusItem + preferences + launch at login
 - **Step 4** ✅ Batch rename (menu bar + CLI) + global hotkey
 - **Step 5** ✅ Code signing & notarization (Developer ID + DMG)
-- **Step 6** Enhanced naming — `FoundationModelsNamer` (macOS 26+, Apple Intelligence)
+- **Step 6** ✅ Enhanced naming — `FoundationModelsNamer` (macOS 26+, Apple Intelligence)
 - **Step 7** Advanced naming — `FastVLMNamer` (Apple Silicon, on-device VLM via MLX)
 - **Step 8** ✅ Mac App Store distribution (paid upfront $4.99, App Sandbox, `#if MAS` conditional compilation)

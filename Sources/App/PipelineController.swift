@@ -11,7 +11,7 @@ final class PipelineController {
     private(set) var state: State = .stopped
 
     private let store: CaptureContextStore
-    private let namer: VisionOnlyNamer
+    private let namer: any ImageNamer
     private let engine: RenameEngine
     private let preferencesStore: PreferencesStore
     private var watcher: ScreenshotWatcher?
@@ -28,8 +28,20 @@ final class PipelineController {
     init(preferencesStore: PreferencesStore) {
         self.preferencesStore = preferencesStore
         self.store = CaptureContextStore()
-        self.namer = VisionOnlyNamer()
+        self.namer = Self.createNamer(tier: preferencesStore.namerTier)
         self.engine = RenameEngine(namer: namer, store: store, groupByApp: preferencesStore.groupByApp)
+    }
+
+    /// Factory: creates the appropriate namer based on the tier preference and runtime availability.
+    private static func createNamer(tier: String) -> any ImageNamer {
+        if tier == "foundation-models" {
+            #if canImport(FoundationModels)
+            if #available(macOS 26.0, *) {
+                return FoundationModelsNamer()
+            }
+            #endif
+        }
+        return VisionOnlyNamer()
     }
 
     // MARK: - Lifecycle

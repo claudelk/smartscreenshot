@@ -27,6 +27,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 | `ImageNamer.swift` | `ImageNamer` protocol + `CaptureContext` struct |
 | `SlugGenerator.swift` | Slug cleaning (`slug(from:)`) + OCR line scoring (`meaningScore(for:)`) |
 | `VisionOnlyNamer.swift` | Tier 1 namer: VNRecognizeTextRequest (OCR) + VNClassifyImageRequest (scene labels) |
+| `FoundationModelsNamer.swift` | Tier 2 namer: Vision OCR + Apple Intelligence LLM (`#if canImport(FoundationModels)`, macOS 26+) |
 | `CaptureContextStore.swift` | Lock-based ring buffer of keystroke contexts, synchronous store + nearest-match lookup |
 | `ScreenshotPreferences.swift` | Reads `com.apple.screencapture location` pref; falls back to `~/Desktop` |
 | `KeystrokeTap.swift` | CGEventTap wrapper: listens for Cmd+Shift+3/4/5, captures frontmost app |
@@ -82,7 +83,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 | Tier | Class | Availability | Status |
 |---|---|---|---|
 | 1 | `VisionOnlyNamer` | macOS 13+, all hardware | **Shipped in v1** |
-| 2 | `FoundationModelsNamer` | macOS 26+, Apple Intelligence | Planned v2 |
+| 2 | `FoundationModelsNamer` | macOS 26+, Apple Intelligence | **Shipped in v2** |
 | 3 | `FastVLMNamer` | macOS 13+, Apple Silicon, opt-in | Planned v2 |
 
 ---

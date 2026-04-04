@@ -166,12 +166,24 @@ export APP_PASSWORD="xxxx-xxxx-xxxx-xxxx"
 
 ---
 
-## Step 6 — Enhanced naming: FoundationModelsNamer (planned)
+## Step 6 — Enhanced naming: FoundationModelsNamer ✅ (2026-04-03)
 
-- **Tier 2 namer** — uses Apple's on-device Foundation Models framework (macOS 26+, Apple Intelligence enabled)
-- Vision OCR + classification feeds into an on-device LLM that generates a more descriptive, context-aware filename
-- Automatically selected when available; falls back to Tier 1 (`VisionOnlyNamer`) on older hardware/OS
-- Wired into the existing `ImageNamer` protocol and Preferences "Naming Mode" dropdown
+**Goal:** use Apple's on-device LLM to generate smarter, more descriptive filenames.
+
+### Implemented
+- `FoundationModelsNamer` — Tier 2 namer: reuses VisionOnlyNamer.analyze() for OCR + classification, feeds results to Foundation Models LLM
+- `@Generable` structured output (ScreenshotName) ensures clean filename format from LLM
+- Runtime availability check via `SystemLanguageModel.default.isAvailable`
+- Graceful double-fallback: LLM unavailable → Tier 1 slug; LLM fails → Tier 1 slug
+- Namer factory in PipelineController + StatusBarController: selects tier based on preference
+- Preferences "Naming Mode" dropdown: "Enhanced (Apple Intelligence)" enabled when available
+- Tier selection triggers pipeline restart
+
+### Design decisions
+- **Text-only LLM** — Foundation Models doesn't accept images; OCR text is extracted first via Vision, then interpreted by LLM
+- **Reuse VisionOnlyNamer.analyze()** — no duplicate Vision code; only slug-building differs
+- **`#if canImport(FoundationModels)`** — compile-time gating for older SDKs
+- **`@available(macOS 26.0, *)`** — runtime gating for older macOS versions
 
 ---
 

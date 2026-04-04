@@ -140,7 +140,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
 
         let urls = panel.urls
-        let namer = VisionOnlyNamer()
+        let namer = Self.createNamer(tier: preferencesStore.namerTier)
         let store = CaptureContextStore()
         let engine = RenameEngine(namer: namer, store: store)
 
@@ -179,5 +179,17 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func quitApp(_ sender: NSMenuItem) {
         NSApplication.shared.terminate(nil)
+    }
+
+    /// Factory: creates the appropriate namer based on the tier preference.
+    private static func createNamer(tier: String) -> any ImageNamer {
+        if tier == "foundation-models" {
+            #if canImport(FoundationModels)
+            if #available(macOS 26.0, *) {
+                return FoundationModelsNamer()
+            }
+            #endif
+        }
+        return VisionOnlyNamer()
     }
 }

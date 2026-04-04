@@ -1,5 +1,8 @@
 import AppKit
 import SmartScreenShotCore
+#if canImport(FoundationModels)
+import FoundationModels
+#endif
 
 /// Programmatic preferences window — no storyboard, no NIB.
 final class PreferencesWindow: NSObject, NSWindowDelegate {
@@ -85,16 +88,30 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
 
         let tierPopup = NSPopUpButton(frame: NSRect(x: 160, y: y - 2, width: 230, height: 26), pullsDown: false)
         tierPopup.addItems(withTitles: ["Standard"])
+        tierPopup.target = self
+        tierPopup.action = #selector(namerTierChanged(_:))
 
-        let tier2 = NSMenuItem(title: "Enhanced (Apple Intelligence) \u{2014} Coming Soon", action: nil, keyEquivalent: "")
-        tier2.isEnabled = false
+        // Tier 2: Enhanced (Apple Intelligence)
+        let tier2Available = Self.isFoundationModelsAvailable()
+
+        let tier2Title = tier2Available
+            ? "Enhanced (Apple Intelligence)"
+            : "Enhanced (Apple Intelligence) \u{2014} Unavailable"
+        let tier2 = NSMenuItem(title: tier2Title, action: nil, keyEquivalent: "")
+        tier2.isEnabled = tier2Available
         tierPopup.menu?.addItem(tier2)
 
         let tier3 = NSMenuItem(title: "Advanced (On-device AI) \u{2014} Coming Soon", action: nil, keyEquivalent: "")
         tier3.isEnabled = false
         tierPopup.menu?.addItem(tier3)
 
-        tierPopup.selectItem(at: 0)
+        // Select current tier
+        switch preferencesStore.namerTier {
+        case "foundation-models" where tier2Available:
+            tierPopup.selectItem(at: 1)
+        default:
+            tierPopup.selectItem(at: 0)
+        }
         content.addSubview(tierPopup)
 
         y -= 40
@@ -211,6 +228,14 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         onFolderChanged?()
     }
 
+    @objc private func namerTierChanged(_ sender: NSPopUpButton) {
+        let tiers = ["vision-only", "foundation-models", "fastvlm"]
+        let index = sender.indexOfSelectedItem
+        let tier = index < tiers.count ? tiers[index] : "vision-only"
+        preferencesStore.namerTier = tier
+        onFolderChanged?()  // Restart pipeline to pick up the new namer
+    }
+
     @objc private func groupByAppToggled(_ sender: NSButton) {
         preferencesStore.groupByApp = sender.state == .on
         onFolderChanged?()  // Restart pipeline to pick up the new groupByApp setting
@@ -236,6 +261,18 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         onHotkeyChanged?()
     }
     #endif
+
+    // MARK: - Availability
+
+    /// Check if Foundation Models (Apple Intelligence) is available at runtime.
+    private static func isFoundationModelsAvailable() -> Bool {
+        #if canImport(FoundationModels)
+        if #available(macOS 26.0, *) {
+            return SystemLanguageModel.default.isAvailable
+        }
+        #endif
+        return false
+    }
 
     // MARK: - Helpers
 
