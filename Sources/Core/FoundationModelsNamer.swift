@@ -102,7 +102,6 @@ public final class FoundationModelsNamer: ImageNamer {
         // Filter out very short fragments (nav items, single words) to prioritize content.
         let allLines = ocrLines
             .filter { $0.confidence > 0.3 && $0.text.count >= 3 }
-            .prefix(25)
             .map { $0.text }
 
         if !allLines.isEmpty {
