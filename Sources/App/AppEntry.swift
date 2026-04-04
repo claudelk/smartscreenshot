@@ -8,20 +8,25 @@ struct SmartScreenShotApp {
         app.setActivationPolicy(.accessory)  // No Dock icon
 
         #if !MAS
-        // Check Accessibility — required for CGEventTap (not needed in sandboxed MAS build)
+        // Accessibility is needed for CGEventTap (keystroke detection).
+        // If not granted, the app still works — just without keystroke context.
+        // We show a one-time prompt but do NOT quit.
         if !AXIsProcessTrusted() {
             let alert = NSAlert()
-            alert.messageText = "Accessibility Permission Required"
+            alert.messageText = "Accessibility Permission (Optional)"
             alert.informativeText = """
-            SmartScreenShot needs Accessibility access to detect \
-            screenshot keystrokes (Cmd+Shift+3/4/5).
+            SmartScreenShot works best with Accessibility access — it \
+            detects screenshot keystrokes to capture which app you're in.
+
+            Without it, screenshots are still auto-renamed, but app \
+            context may be less accurate.
 
             Grant access in System Settings \u{203A} Privacy & Security \
-            \u{203A} Accessibility, then relaunch.
+            \u{203A} Accessibility for the best experience.
             """
-            alert.alertStyle = .warning
+            alert.alertStyle = .informational
             alert.addButton(withTitle: "Open Settings")
-            alert.addButton(withTitle: "Quit")
+            alert.addButton(withTitle: "Continue Without")
 
             let response = alert.runModal()
             if response == .alertFirstButtonReturn {
@@ -29,8 +34,7 @@ struct SmartScreenShotApp {
                     URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
                 )
             }
-            app.terminate(nil)
-            return
+            // Continue running — pipeline will skip KeystrokeTap if it fails
         }
         #endif
 

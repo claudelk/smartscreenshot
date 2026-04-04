@@ -91,12 +91,35 @@ touch_marker() {
     sleep 0.1
 }
 
-# Take a screenshot via screencapture into the target folder
+# Create a fake screenshot PNG in the target folder.
+# Uses sips to create a real 100x100 PNG (avoids screencapture permission issues).
 take_screenshot() {
     local folder="$1"
     local name="${2:-Screenshot $(date '+%Y-%m-%d at %I.%M.%S %p')}"
     local filepath="$folder/$name.png"
-    screencapture -x "$filepath"
+
+    # Try screencapture first; fall back to creating a synthetic PNG
+    if screencapture -x "$filepath" 2>/dev/null; then
+        echo "$filepath"
+        return
+    fi
+
+    # Fallback: create a minimal PNG via Python (universally available on macOS)
+    python3 -c "
+import struct, zlib
+def png(w,h):
+    raw = b''
+    for y in range(h):
+        raw += b'\\x00' + bytes([y%256, (y*7)%256, (y*13)%256]) * w
+    def chunk(t,d):
+        c = t+d
+        return struct.pack('>I',len(d)) + c + struct.pack('>I',zlib.crc32(c)&0xffffffff)
+    return (b'\\x89PNG\\r\\n\\x1a\\n' +
+            chunk(b'IHDR', struct.pack('>IIBBBBB',w,h,8,2,0,0,0)) +
+            chunk(b'IDAT', zlib.compress(raw)) +
+            chunk(b'IEND', b''))
+open('$filepath','wb').write(png(100,100))
+"
     echo "$filepath"
 }
 
