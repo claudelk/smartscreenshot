@@ -10,8 +10,14 @@ struct SmartScreenShotApp {
         #if !MAS
         // Accessibility is needed for CGEventTap (keystroke detection).
         // If not granted, the app still works — just without keystroke context.
-        // We show a one-time prompt but do NOT quit.
-        if !AXIsProcessTrusted() {
+        // Show the prompt only once; after that, silently continue without.
+        let accessibilityPromptShown = UserDefaults(suiteName: "com.smartscreenshot.app")?
+            .bool(forKey: "accessibilityPromptShown") ?? false
+
+        if !AXIsProcessTrusted() && !accessibilityPromptShown {
+            UserDefaults(suiteName: "com.smartscreenshot.app")?
+                .set(true, forKey: "accessibilityPromptShown")
+
             let alert = NSAlert()
             alert.messageText = "Accessibility Permission (Optional)"
             alert.informativeText = """
@@ -34,8 +40,8 @@ struct SmartScreenShotApp {
                     URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
                 )
             }
-            // Continue running — pipeline will skip KeystrokeTap if it fails
         }
+        // Continue running — pipeline will skip KeystrokeTap if it fails
         #endif
 
         // Build components

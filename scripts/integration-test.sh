@@ -123,10 +123,30 @@ open('$filepath','wb').write(png(100,100))
     echo "$filepath"
 }
 
+# Helper to restart the app with new settings
+restart_app() {
+    killall SmartScreenShot 2>/dev/null || true
+    sleep 1
+    # Ad-hoc sign to preserve Accessibility permission across restarts
+    codesign -s - -f "$PWD/.build/dist/SmartScreenShot.app" 2>/dev/null
+    open "$PWD/.build/dist/SmartScreenShot.app"
+    sleep 3
+    # Wait for app to actually be running
+    local retries=5
+    while ! pgrep -x SmartScreenShot > /dev/null 2>&1 && (( retries > 0 )); do
+        sleep 1
+        retries=$((retries - 1))
+    done
+}
+
 # --- Setup ---
 
 SCREENSHOT_FOLDER=$(get_screenshot_folder)
 TODAY=$(date +%Y-%m-%d)
+
+# Reset test state — ensure clean defaults
+defaults write com.smartscreenshot.app groupByApp -bool false
+defaults write com.smartscreenshot.app isEnabled -bool true
 
 echo "============================================"
 echo "  SmartScreenShot Integration Tests"
@@ -136,11 +156,8 @@ echo "  Screenshot folder: $SCREENSHOT_FOLDER"
 echo "  Date: $TODAY"
 echo ""
 
-# Check if app is running
-if ! pgrep -x SmartScreenShot > /dev/null 2>&1; then
-    echo "ERROR: SmartScreenShot is not running. Launch it first."
-    exit 1
-fi
+# Ensure app is running with clean state
+restart_app
 
 # --- Test 1: Basic Pipeline ---
 echo "--- 1. Basic Pipeline ---"
@@ -205,10 +222,7 @@ log_pass "4.2 With groupByApp off, folder is screenshot_ (verified in 1.2b)"
 defaults write com.smartscreenshot.app groupByApp -bool true
 # Need to restart pipeline for the setting to take effect
 # Kill and relaunch the app
-killall SmartScreenShot 2>/dev/null || true
-sleep 1
-open "$PWD/.build/dist/SmartScreenShot.app"
-sleep 2
+restart_app
 
 touch_marker
 SHOT_PATH=$(take_screenshot "$SCREENSHOT_FOLDER")
@@ -229,10 +243,7 @@ fi
 
 # 4.5 — Disable groupByApp, verify back to screenshot_
 defaults write com.smartscreenshot.app groupByApp -bool false
-killall SmartScreenShot 2>/dev/null || true
-sleep 1
-open "$PWD/.build/dist/SmartScreenShot.app"
-sleep 2
+restart_app
 
 touch_marker
 SHOT_PATH=$(take_screenshot "$SCREENSHOT_FOLDER")
@@ -292,10 +303,7 @@ echo ""
 echo "--- 2. Pipeline Enable/Disable ---"
 
 defaults write com.smartscreenshot.app isEnabled -bool false
-killall SmartScreenShot 2>/dev/null || true
-sleep 1
-open "$PWD/.build/dist/SmartScreenShot.app"
-sleep 2
+restart_app
 
 touch_marker
 SHOT_PATH=$(take_screenshot "$SCREENSHOT_FOLDER")
@@ -312,10 +320,7 @@ fi
 
 # Re-enable
 defaults write com.smartscreenshot.app isEnabled -bool true
-killall SmartScreenShot 2>/dev/null || true
-sleep 1
-open "$PWD/.build/dist/SmartScreenShot.app"
-sleep 2
+restart_app
 
 touch_marker
 SHOT_PATH=$(take_screenshot "$SCREENSHOT_FOLDER")
