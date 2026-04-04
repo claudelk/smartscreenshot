@@ -48,14 +48,16 @@ public final class FoundationModelsNamer: ImageNamer {
         do {
             let session = LanguageModelSession(
                 instructions: Instructions("""
-                    You generate short, descriptive filenames for screenshots. \
-                    Given OCR text, scene labels, and app context, produce a \
-                    concise 2-5 word name that captures the MAIN TOPIC of the page. \
-                    Use lowercase words. No file extension. No special characters. \
-                    Prioritize the page title or main headline over body text, \
-                    secondary UI elements, sidebars, or nested content within the page. \
-                    If this is a web article, use the article title. \
-                    If this is an app, describe the main screen or view shown.
+                    You generate short filenames for screenshots. Rules: \
+                    1. Output 2-5 lowercase words describing the MAIN TOPIC. \
+                    2. For web pages: use the page/article TITLE, not body paragraphs. \
+                    3. For apps: describe the main view or screen. \
+                    4. Ignore navigation bars, tab bars, sidebars, and small UI labels. \
+                    5. Ignore text inside nested phone mockups or embedded images. \
+                    6. No file extension, no special characters. \
+                    Example: a screenshot of an Apple Newsroom article about iPhones \
+                    should be named "apple-iphone-announcement", NOT after text \
+                    visible inside phone mockup images on the page.
                     """)
             )
 
@@ -97,18 +99,16 @@ public final class FoundationModelsNamer: ImageNamer {
             parts.append("App: \(context.appName)")
         }
 
-        // OCR lines: send the top lines, marking the highest-scored as likely headline
-        let filtered = ocrLines
+        // Send ALL OCR lines in reading order (as returned by Vision) — let the LLM
+        // decide what's the main topic. Do NOT pre-sort by meaningScore, as that
+        // promotes long body text over short headline lines.
+        let allLines = ocrLines
             .filter { $0.confidence > 0.3 }
-            .sorted { SlugGenerator.meaningScore(for: $0.text) > SlugGenerator.meaningScore(for: $1.text) }
+            .prefix(15)
+            .map { $0.text }
 
-        if let first = filtered.first {
-            parts.append("Likely headline/title: \(first.text)")
-        }
-
-        let otherLines = filtered.dropFirst().prefix(7).map { $0.text }
-        if !otherLines.isEmpty {
-            parts.append("Other text: \(otherLines.joined(separator: " | "))")
+        if !allLines.isEmpty {
+            parts.append("All text on screen (top to bottom):\n\(allLines.joined(separator: "\n"))")
         }
 
         // Scene labels
