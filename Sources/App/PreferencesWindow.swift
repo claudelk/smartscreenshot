@@ -158,6 +158,18 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         content.addSubview(hotkeyLabel)
         #endif
 
+        // --- Version ---
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+        let versionLabel = makeLabel(
+            "SmartScreenShot v\(version)",
+            at: 15,
+            size: 11,
+            color: .tertiaryLabelColor
+        )
+        versionLabel.alignment = .center
+        versionLabel.frame = NSRect(x: 0, y: 10, width: 460, height: 16)
+        content.addSubview(versionLabel)
+
         w.contentView = content
         w.makeKeyAndOrderFront(nil)
         activateApp()
