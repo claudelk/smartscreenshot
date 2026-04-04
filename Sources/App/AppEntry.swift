@@ -7,7 +7,8 @@ struct SmartScreenShotApp {
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)  // No Dock icon
 
-        // Check Accessibility — required for CGEventTap
+        #if !MAS
+        // Check Accessibility — required for CGEventTap (not needed in sandboxed MAS build)
         if !AXIsProcessTrusted() {
             let alert = NSAlert()
             alert.messageText = "Accessibility Permission Required"
@@ -31,12 +32,39 @@ struct SmartScreenShotApp {
             app.terminate(nil)
             return
         }
+        #endif
 
         // Build components
         let prefsStore = PreferencesStore()
-        let licenseManager = LicenseManager()
-        let pipeline = PipelineController(preferencesStore: prefsStore, licenseManager: licenseManager)
-        let statusBar = StatusBarController(pipeline: pipeline, preferencesStore: prefsStore, licenseManager: licenseManager)
+
+        #if MAS
+        // First-launch: ask user to select screenshot folder for sandbox access
+        if prefsStore.screenshotFolderBookmark == nil && prefsStore.screenshotFolderOverride == nil {
+            let panel = NSOpenPanel()
+            panel.canChooseDirectories = true
+            panel.canChooseFiles = false
+            panel.canCreateDirectories = false
+            panel.allowsMultipleSelection = false
+            panel.prompt = "Select"
+            panel.message = "SmartScreenShot needs access to your screenshot folder.\nSelect the folder where macOS saves screenshots (usually Desktop)."
+            panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Desktop")
+
+            if panel.runModal() == .OK, let url = panel.url {
+                prefsStore.screenshotFolderOverride = url.path
+                prefsStore.saveBookmark(for: url)
+            } else {
+                // User cancelled — use Desktop as fallback, they can change later
+                let desktop = FileManager.default.homeDirectoryForCurrentUser
+                    .appendingPathComponent("Desktop")
+                prefsStore.screenshotFolderOverride = desktop.path
+                prefsStore.saveBookmark(for: desktop)
+            }
+        }
+        #endif
+
+        let pipeline = PipelineController(preferencesStore: prefsStore)
+        let statusBar = StatusBarController(pipeline: pipeline, preferencesStore: prefsStore)
 
         // Start the pipeline if enabled (default: true on first launch)
         if prefsStore.isEnabled {
@@ -46,7 +74,7 @@ struct SmartScreenShotApp {
         print("SmartScreenShot ready.")
 
         // Keep strong references alive for the app lifetime
-        withExtendedLifetime((statusBar, pipeline, prefsStore, licenseManager)) {
+        withExtendedLifetime((statusBar, pipeline, prefsStore)) {
             app.run()
         }
     }

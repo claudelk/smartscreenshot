@@ -14,19 +14,19 @@ final class PipelineController {
     private let namer: VisionOnlyNamer
     private let engine: RenameEngine
     private let preferencesStore: PreferencesStore
-    private let licenseManager: LicenseManager
     private var watcher: ScreenshotWatcher?
+    #if !MAS
     private var tap: KeystrokeTap?
     private var hotkeyMonitor: GlobalHotkeyMonitor?
+    #endif
 
     /// Most recent file detected by the watcher (original path before rename).
     private(set) var lastDetectedURL: URL?
     /// Destination path after the most recent rename.
     private(set) var lastDestinationURL: URL?
 
-    init(preferencesStore: PreferencesStore, licenseManager: LicenseManager) {
+    init(preferencesStore: PreferencesStore) {
         self.preferencesStore = preferencesStore
-        self.licenseManager = licenseManager
         self.store = CaptureContextStore()
         self.namer = VisionOnlyNamer()
         self.engine = RenameEngine(namer: namer, store: store)
@@ -38,13 +38,32 @@ final class PipelineController {
         guard state == .stopped else { return }
 
         let screenshotFolder = preferencesStore.screenshotFolder
+
+        #if MAS
+        // Resolve security-scoped bookmark for sandbox folder access
+        if let bookmarkedURL = preferencesStore.resolveBookmarkedFolder() {
+            _ = bookmarkedURL.startAccessingSecurityScopedResource()
+        }
+        #endif
+
         watcher = ScreenshotWatcher(folderURL: screenshotFolder) { [weak self] url, detectedAt in
             guard let self else { return }
             self.lastDetectedURL = url
-            guard self.licenseManager.consumeRename() else {
-                LicenseManager.postTrialLimitNotification()
-                return
+
+            #if MAS
+            // Sandbox fallback: capture frontmost app when FSEvents fires.
+            // Runs ~0.3-1s after keystroke — frontmost app is usually still correct.
+            if let frontApp = NSWorkspace.shared.frontmostApplication {
+                let ctx = CaptureContext(
+                    appName: frontApp.localizedName ?? "screenshot",
+                    appBundleID: frontApp.bundleIdentifier ?? "",
+                    browserURL: nil,
+                    capturedAt: detectedAt
+                )
+                self.store.store(ctx)
             }
+            #endif
+
             Task {
                 let dest = await self.engine.process(newFile: url, detectedAt: detectedAt)
                 if let dest { self.lastDestinationURL = dest }
@@ -52,6 +71,7 @@ final class PipelineController {
         }
         watcher?.start()
 
+        #if !MAS
         let keystrokeTap = KeystrokeTap(store: store)
         do {
             try keystrokeTap.start()
@@ -61,6 +81,7 @@ final class PipelineController {
         }
 
         startHotkeyMonitor()
+        #endif
 
         state = .running
         print("[PipelineController] started")
@@ -70,10 +91,12 @@ final class PipelineController {
         guard state == .running else { return }
         watcher?.stop()
         watcher = nil
+        #if !MAS
         tap?.stop()
         tap = nil
         hotkeyMonitor?.stop()
         hotkeyMonitor = nil
+        #endif
         state = .stopped
         print("[PipelineController] stopped")
     }
@@ -90,6 +113,7 @@ final class PipelineController {
         }
     }
 
+    #if !MAS
     /// Restart the global hotkey monitor (e.g. after preferences change).
     func restartHotkeyMonitor() {
         hotkeyMonitor?.stop()
@@ -98,17 +122,18 @@ final class PipelineController {
             startHotkeyMonitor()
         }
     }
+    #endif
 
     /// The screenshot folder being watched.
     var screenshotFolder: URL { preferencesStore.screenshotFolder }
 
     // MARK: - Private
 
+    #if !MAS
     private func startHotkeyMonitor() {
         let monitor = GlobalHotkeyMonitor(
             preferencesStore: preferencesStore,
             engine: engine,
-            licenseManager: licenseManager,
             screenshotFolder: { [weak self] in
                 self?.preferencesStore.screenshotFolder ?? URL(fileURLWithPath: NSHomeDirectory() + "/Desktop")
             }
@@ -116,4 +141,5 @@ final class PipelineController {
         monitor.start()
         self.hotkeyMonitor = monitor
     }
+    #endif
 }

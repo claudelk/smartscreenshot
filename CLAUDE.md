@@ -41,12 +41,11 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 |---|---|
 | `AppEntry.swift` | `@main` entry: NSApplication with `.accessory` policy, Accessibility check via NSAlert, wires components |
 | `PipelineController.swift` | Orchestration layer: wraps KeystrokeTap + ScreenshotWatcher + RenameEngine with start/stop lifecycle |
-| `StatusBarController.swift` | NSStatusItem + NSMenu: Enable/Disable, Re-analyze Last, Batch Rename, Open Folder, License Status, Buy, Preferences, Quit |
-| `PreferencesStore.swift` | UserDefaults wrapper for all settings (enabled, namer tier, launch at login, browser capture, hotkey) |
-| `PreferencesWindow.swift` | Programmatic NSWindow: license activation, tier selection, launch at login, global hotkey toggle, browser capture stub |
-| `LaunchAtLogin.swift` | Install/uninstall `~/Library/LaunchAgents/com.smartscreenshot.plist` |
-| `GlobalHotkeyMonitor.swift` | NSEvent global key monitor: configurable hotkey to rename newest screenshot |
-| `LicenseManager.swift` | Trial counter (5/day) + LemonSqueezy activation + Keychain storage + notification helper |
+| `StatusBarController.swift` | NSStatusItem + NSMenu: Enable/Disable, Re-analyze Last, Batch Rename, Open Folder, Preferences, Quit |
+| `PreferencesStore.swift` | UserDefaults wrapper for all settings + security-scoped bookmark support for MAS sandbox |
+| `PreferencesWindow.swift` | Programmatic NSWindow: tier selection, launch at login, global hotkey toggle (`#if !MAS`), browser capture stub |
+| `LaunchAtLogin.swift` | `#if MAS`: SMAppService; `#else`: LaunchAgent plist |
+| `GlobalHotkeyMonitor.swift` | NSEvent global key monitor (`#if !MAS` only) |
 
 ---
 
@@ -74,7 +73,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 | `daemon.md` | Step 2 daemon design: event flow, timing strategy, folder structure |
 | `menu-bar-app.md` | Step 3 menu bar app: NSStatusItem, preferences, launch at login |
 | `code-signing.md` | Step 5 code signing, notarization, DMG distribution |
-| `licensing.md` | Step 8 trial/paid licensing: TOFU model, LemonSqueezy activation, Keychain storage |
+| `licensing.md` | Distribution paths: direct (Developer ID) vs MAS (sandbox), conditional compilation |
 
 ---
 

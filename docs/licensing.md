@@ -1,75 +1,54 @@
-# SmartScreenShot — Licensing
+# SmartScreenShot — Distribution
 
-## Model
+## Two Distribution Paths
 
-- **Trial:** 5 free renames per day, resets at midnight local time
-- **Paid:** $4.99 lifetime unlock via LemonSqueezy
-- **Activation:** one network call to LemonSqueezy API, then fully offline forever
+SmartScreenShot supports both direct distribution and Mac App Store via conditional compilation.
 
-## Flow
+### Direct Distribution (Developer ID + DMG)
 
-1. User downloads and installs SmartScreenShot
-2. App works in trial mode (5/day) with no sign-up required
-3. When limit reached: notification (background) or alert (foreground) with Buy button
-4. User clicks Buy → opens LemonSqueezy checkout in browser → pays $4.99
-5. LemonSqueezy emails a UUID license key
-6. User pastes key in Preferences → Activate
-7. App calls `POST /v1/licenses/activate` → validates server-side → caches in Keychain
-8. App is now fully licensed — no further network calls, ever
+Build: `swift build -c release`
 
-## License Key Format
+- Full feature set: CGEventTap keystroke detection, global hotkey, LaunchAgent
+- Requires Accessibility permission
+- Code signed with Developer ID, notarized, packaged as DMG
+- See `scripts/build-and-sign.sh`
 
-Standard UUID (LemonSqueezy-generated):
-```
-38b1460a-5104-4067-a91d-77b872934d51
-```
+### Mac App Store (Sandbox)
 
-## Activation API
+Build: `swift build -c release --target SmartScreenShot -Xswiftc -DMAS`
 
-```
-POST https://api.lemonsqueezy.com/v1/licenses/activate
-Content-Type: application/x-www-form-urlencoded
+- App Sandbox enabled — no CGEventTap, no global hotkey
+- App context captured via NSWorkspace.frontmostApplication at FSEvents time
+- Launch at Login via SMAppService (not LaunchAgent)
+- Screenshot folder access via security-scoped bookmarks (user selects folder on first launch)
+- Paid upfront $4.99, Apple handles all payment
+- See `scripts/build-mas.sh`
 
-license_key=<UUID>&instance_name=<Mac hostname>
-```
+## Conditional Compilation
 
-Response includes: `activated`, `license_key.status`, `instance.id`, `meta.product_id`.
+The `MAS` Swift compiler flag controls feature availability:
 
-## Trust Model (TOFU)
-
-LemonSqueezy keys are plain UUIDs — not cryptographically signed. The activation API confirms validity server-side. After activation, the response is cached in macOS Keychain and trusted on subsequent launches.
-
-**Why this is acceptable for $4.99:**
-- Target audience won't reverse-engineer Keychain entries
-- No DRM is uncrackable at any price point
-- Simplicity > security theater for this use case
-
-## Storage
-
-| Data | Location | Purpose |
+| Feature | Direct (`!MAS`) | MAS |
 |---|---|---|
-| Trial counter | UserDefaults (`trial_count`, `trial_date`) | Daily rename count, resets on date change |
-| License activation | macOS Keychain (`com.smartscreenshot.license`) | Cached LemonSqueezy response (instance_id, product_id, activated_at) |
+| CGEventTap (KeystrokeTap) | Yes | No — excluded |
+| Global hotkey | Yes | No — excluded |
+| App context detection | Keystroke time (instant) | FSEvents time (~1-3s delay) |
+| Launch at Login | LaunchAgent plist | SMAppService |
+| Folder access | Direct path | Security-scoped bookmark |
+| Accessibility permission | Required | Not needed |
+| Hotkey preferences | Shown | Hidden |
+| Payment | N/A | Apple App Store |
 
-**Why Keychain over UserDefaults for license?**
-- More tamper-resistant (requires admin or app-specific access)
-- Standard macOS practice for credentials/license data
-- Survives `defaults delete` commands
+## Sandbox Entitlements
 
-## Gating Points
+`Distribution/SmartScreenShot-MAS.entitlements`:
+- `com.apple.security.app-sandbox` — required for MAS
+- `com.apple.security.files.user-selected.read-write` — NSOpenPanel folder access
 
-All three rename pathways are gated before calling `RenameEngine`:
+## Security-Scoped Bookmarks
 
-1. **Auto-rename** (FSEvents) — `PipelineController` watcher callback
-2. **Global hotkey** — `GlobalHotkeyMonitor.renameNewestScreenshot()`
-3. **Batch rename** — `StatusBarController.batchRename()`
-
-**Re-analyze is NOT gated** — it's a correction, not a new rename.
-
-## LemonSqueezy Setup (TODO)
-
-1. Create a LemonSqueezy store at lemonsqueezy.com
-2. Create a product: "SmartScreenShot", $4.99, one-time payment
-3. Enable license key generation for the product
-4. Copy the checkout URL → update `LicenseManager.purchaseURL`
-5. Copy the product ID → update `LicenseManager.expectedProductId`
+In sandbox, folder access doesn't persist across launches. On first launch:
+1. App presents NSOpenPanel asking user to select screenshot folder
+2. Bookmark data saved in UserDefaults
+3. On subsequent launches, bookmark is resolved and `startAccessingSecurityScopedResource()` called
+4. If bookmark becomes stale (folder moved), it's automatically refreshed

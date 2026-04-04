@@ -185,33 +185,35 @@ export APP_PASSWORD="xxxx-xxxx-xxxx-xxxx"
 
 ---
 
-## Step 8 — Trial / paid licensing ✅ (2026-03-30)
+## Step 8 — Mac App Store distribution ✅ (2026-04-03)
 
-**Goal:** monetize with a 5/day free trial and $4.99 lifetime unlock via LemonSqueezy.
+**Goal:** distribute via Mac App Store as a paid app ($4.99). App Sandbox required.
 
 ### Implemented
-- `LicenseManager` — central class for trial counting + license activation + Keychain storage
-- Trial: 5 renames/day, counter in UserDefaults with date stamp, resets at midnight
-- Activation: one-time `POST /v1/licenses/activate` to LemonSqueezy API, response cached in macOS Keychain (TOFU model)
-- Keychain storage via Security framework (`SecItemAdd`/`SecItemCopyMatching`/`SecItemDelete`)
-- All three rename pathways gated: auto-rename (FSEvents), global hotkey, batch rename
-- Re-analyze NOT gated (correction, not new rename)
-- Menu bar: trial status display ("Trial: 3/5 remaining today" / "Licensed ✓") + "Buy Full Version ($4.99)" item
-- Preferences: license section with key input field, Activate button, Buy License button
-- UNUserNotificationCenter for background trial limit alerts
-- NSAlert for foreground trial limit + partial batch warnings
-- Product ID validation prevents cross-product key reuse
+- `#if MAS` conditional compilation: sandbox-incompatible code excluded from MAS build
+- `KeystrokeTap` wrapped in `#if !MAS` — CGEventTap forbidden in sandbox
+- `GlobalHotkeyMonitor` wrapped in `#if !MAS` — global key monitoring forbidden in sandbox
+- NSWorkspace fallback: captures frontmost app in watcher callback (~1-3s delay, 95%+ accuracy)
+- `LaunchAtLogin` dual implementation: `#if MAS` uses SMAppService, `#else` uses LaunchAgent
+- Security-scoped bookmarks for sandbox folder access persistence
+- First-launch NSOpenPanel for screenshot folder selection (MAS only)
+- MAS entitlements: App Sandbox + user-selected file access
+- `scripts/build-mas.sh` — MAS build pipeline (sign + .pkg)
+- `ITSAppUsesNonExemptEncryption = false` in Info.plist
+- LicenseManager removed — paid upfront, Apple handles payment
 
 ### Design decisions
-- **LemonSqueezy + TOFU** — one activation call, then trust Keychain forever. Sufficient for $4.99.
-- **Keychain over UserDefaults** — more tamper-resistant, standard for license data
-- **Gate in App layer, not Core** — RenameEngine stays pure, Core remains dependency-free
-- **No aggressive DRM** — clock manipulation accepted, no anti-tamper beyond Keychain
+- **`#if MAS` over runtime detection** — sandbox-incompatible code never ships in MAS binary
+- **NSWorkspace in watcher callback** — captures frontmost app at FSEvents time, stores in CaptureContextStore; RenameEngine unchanged
+- **Security-scoped bookmarks** — required for folder access persistence in sandbox
+- **SMAppService** — Apple's blessed API for launch at login in sandboxed apps (macOS 13+)
+- **Paid upfront** — simplest monetization, no StoreKit code needed
+- **Both paths preserved** — `swift build` for Developer ID, `swift build -Xswiftc -DMAS` for MAS
 
-### LemonSqueezy setup (TODO)
-1. Create store + product at lemonsqueezy.com
-2. Update `LicenseManager.purchaseURL` with checkout link
-3. Update `LicenseManager.expectedProductId` with product ID
+### MAS setup (TODO)
+1. Create app record in App Store Connect
+2. Create "3rd Party Mac Developer Application" and "Installer" certificates
+3. Run `scripts/build-mas.sh` and upload .pkg via Transporter
 
 ---
 

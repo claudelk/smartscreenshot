@@ -8,13 +8,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private let statusItem: NSStatusItem
     private let pipeline: PipelineController
     private let preferencesStore: PreferencesStore
-    private let licenseManager: LicenseManager
     private var preferencesWindow: PreferencesWindow?
 
-    init(pipeline: PipelineController, preferencesStore: PreferencesStore, licenseManager: LicenseManager) {
+    init(pipeline: PipelineController, preferencesStore: PreferencesStore) {
         self.pipeline = pipeline
         self.preferencesStore = preferencesStore
-        self.licenseManager = licenseManager
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
         setupButton()
@@ -77,23 +75,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
 
-        // License status (non-clickable)
-        let licenseStatusItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        licenseStatusItem.tag = 300
-        menu.addItem(licenseStatusItem)
-
-        // Buy button (hidden when licensed)
-        let buyItem = NSMenuItem(
-            title: "Buy Full Version ($4.99)",
-            action: #selector(openPurchaseLink(_:)),
-            keyEquivalent: ""
-        )
-        buyItem.target = self
-        buyItem.tag = 301
-        menu.addItem(buyItem)
-
-        menu.addItem(.separator())
-
         // Preferences
         let prefsItem = NSMenuItem(
             title: "Preferences\u{2026}",
@@ -128,19 +109,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         if let reanalyzeItem = menu.item(withTag: 100) {
             reanalyzeItem.isEnabled = pipeline.lastDestinationURL != nil
         }
-        // Update license status
-        if let statusMenuItem = menu.item(withTag: 300) {
-            switch licenseManager.status {
-            case .trial(let remaining):
-                statusMenuItem.title = "Trial: \(remaining)/\(LicenseManager.dailyLimit) remaining today"
-            case .licensed:
-                statusMenuItem.title = "Licensed \u{2713}"
-            }
-        }
-        // Show/hide buy button
-        if let buyItem = menu.item(withTag: 301) {
-            buyItem.isHidden = licenseManager.isLicensed
-        }
     }
 
     // MARK: - Actions
@@ -160,12 +128,6 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func batchRename(_ sender: NSMenuItem) {
-        // Check trial before opening panel
-        if !licenseManager.isLicensed && licenseManager.remainingToday == 0 {
-            showTrialLimitAlert()
-            return
-        }
-
         let panel = NSOpenPanel()
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
@@ -178,33 +140,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
 
         let urls = panel.urls
-
-        // For trial users, cap at remaining count
-        let allowedCount: Int
-        if licenseManager.isLicensed {
-            allowedCount = urls.count
-        } else {
-            let remaining = licenseManager.remainingToday
-            allowedCount = min(urls.count, remaining)
-            if allowedCount < urls.count {
-                let alert = NSAlert()
-                alert.messageText = "Trial Limit"
-                alert.informativeText = "You have \(allowedCount) rename\(allowedCount == 1 ? "" : "s") remaining today. Only the first \(allowedCount) of \(urls.count) files will be renamed."
-                alert.addButton(withTitle: "Continue")
-                alert.addButton(withTitle: "Cancel")
-                if alert.runModal() != .alertFirstButtonReturn { return }
-            }
-        }
-
-        let filesToRename = Array(urls.prefix(allowedCount))
         let namer = VisionOnlyNamer()
         let store = CaptureContextStore()
         let engine = RenameEngine(namer: namer, store: store)
 
         Task {
             var succeeded = 0
-            for url in filesToRename {
-                guard licenseManager.consumeRename() else { break }
+            for url in urls {
                 if let _ = await engine.processManual(file: url) {
                     succeeded += 1
                 }
@@ -217,37 +159,19 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         NSWorkspace.shared.open(pipeline.screenshotFolder)
     }
 
-    @objc private func openPurchaseLink(_ sender: NSMenuItem) {
-        NSWorkspace.shared.open(LicenseManager.purchaseURL)
-    }
-
-    private func showTrialLimitAlert() {
-        let alert = NSAlert()
-        alert.messageText = "Daily Limit Reached"
-        alert.informativeText = "You\u{2019}ve used all \(LicenseManager.dailyLimit) free renames for today. Purchase SmartScreenShot for unlimited renames."
-        alert.addButton(withTitle: "Buy ($4.99)")
-        alert.addButton(withTitle: "OK")
-        alert.alertStyle = .informational
-        if alert.runModal() == .alertFirstButtonReturn {
-            NSWorkspace.shared.open(LicenseManager.purchaseURL)
-        }
-    }
-
     @objc private func openPreferences(_ sender: NSMenuItem) {
         if preferencesWindow == nil {
-            let pw = PreferencesWindow(preferencesStore: preferencesStore, licenseManager: licenseManager)
+            let pw = PreferencesWindow(preferencesStore: preferencesStore)
             pw.onFolderChanged = { [weak self] in
                 guard let self, self.pipeline.state == .running else { return }
                 self.pipeline.stop()
                 self.pipeline.start()
             }
+            #if !MAS
             pw.onHotkeyChanged = { [weak self] in
                 self?.pipeline.restartHotkeyMonitor()
             }
-            pw.onLicenseChanged = { [weak self] in
-                // Force window reconstruction on next open to reflect license state
-                self?.preferencesWindow = nil
-            }
+            #endif
             preferencesWindow = pw
         }
         preferencesWindow?.showWindow()

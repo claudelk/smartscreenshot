@@ -1,3 +1,33 @@
+#if MAS
+import ServiceManagement
+
+/// Manages launch-at-login via SMAppService (macOS 13+, sandbox-compatible).
+struct LaunchAtLogin {
+
+    func install() {
+        do {
+            try SMAppService.mainApp.register()
+            print("[LaunchAtLogin] registered via SMAppService")
+        } catch {
+            print("[LaunchAtLogin] register failed: \(error.localizedDescription)")
+        }
+    }
+
+    func uninstall() {
+        do {
+            try SMAppService.mainApp.unregister()
+            print("[LaunchAtLogin] unregistered via SMAppService")
+        } catch {
+            print("[LaunchAtLogin] unregister failed: \(error.localizedDescription)")
+        }
+    }
+
+    var isInstalled: Bool {
+        SMAppService.mainApp.status == .enabled
+    }
+}
+
+#else
 import Foundation
 
 /// Manages a LaunchAgent plist for "launch at login" functionality.
@@ -55,3 +85,4 @@ struct LaunchAtLogin {
         FileManager.default.fileExists(atPath: plistURL.path)
     }
 }
+#endif

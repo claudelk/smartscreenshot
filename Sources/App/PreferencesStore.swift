@@ -34,6 +34,7 @@ final class PreferencesStore {
         static let hotkeyEnabled = "hotkeyEnabled"
         static let hotkeyKeyCode = "hotkeyKeyCode"
         static let hotkeyModifiers = "hotkeyModifiers"
+        static let screenshotFolderBookmark = "screenshotFolderBookmark"
     }
 
     // MARK: - Properties
@@ -111,6 +112,57 @@ final class PreferencesStore {
         if let override = screenshotFolderOverride, !override.isEmpty {
             return URL(fileURLWithPath: (override as NSString).expandingTildeInPath)
         }
+        #if MAS
+        // In sandbox, fall back to bookmarked folder or Desktop
+        if let bookmarked = resolveBookmarkedFolder() {
+            return bookmarked
+        }
+        #endif
         return ScreenshotPreferences.folder
+    }
+
+    // MARK: - Security-Scoped Bookmarks (MAS sandbox)
+
+    /// Stored bookmark data for sandbox folder access persistence.
+    var screenshotFolderBookmark: Data? {
+        get { defaults.data(forKey: Keys.screenshotFolderBookmark) }
+        set { defaults.set(newValue, forKey: Keys.screenshotFolderBookmark) }
+    }
+
+    /// Create and store a security-scoped bookmark from a user-selected URL.
+    func saveBookmark(for url: URL) {
+        do {
+            let bookmark = try url.bookmarkData(
+                options: .withSecurityScope,
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            )
+            screenshotFolderBookmark = bookmark
+            print("[PreferencesStore] saved security-scoped bookmark for \(url.path)")
+        } catch {
+            print("[PreferencesStore] bookmark save failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Resolve a stored security-scoped bookmark. Returns nil if no bookmark exists.
+    func resolveBookmarkedFolder() -> URL? {
+        guard let bookmark = screenshotFolderBookmark else { return nil }
+        do {
+            var isStale = false
+            let url = try URL(
+                resolvingBookmarkData: bookmark,
+                options: .withSecurityScope,
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            )
+            if isStale {
+                // Re-save the bookmark to refresh it
+                saveBookmark(for: url)
+            }
+            return url
+        } catch {
+            print("[PreferencesStore] bookmark resolve failed: \(error.localizedDescription)")
+            return nil
+        }
     }
 }

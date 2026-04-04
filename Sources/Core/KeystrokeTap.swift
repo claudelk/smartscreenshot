@@ -1,3 +1,4 @@
+#if !MAS
 import AppKit
 import CoreGraphics
 import Foundation
@@ -105,3 +106,4 @@ public final class KeystrokeTap {
         ))
     }
 }
+#endif
