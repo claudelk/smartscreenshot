@@ -14,8 +14,7 @@ final class PipelineController {
     private(set) var state: State = .stopped
 
     private let store: CaptureContextStore
-    private let namer: any ImageNamer
-    private let engine: RenameEngine
+    private var engine: RenameEngine
     private let preferencesStore: PreferencesStore
     private var watcher: ScreenshotWatcher?
     #if !MAS
@@ -33,10 +32,16 @@ final class PipelineController {
     init(preferencesStore: PreferencesStore) {
         self.preferencesStore = preferencesStore
         self.store = CaptureContextStore()
+        // Create initial engine — will be recreated on each start() with fresh settings
+        self.engine = Self.createEngine(preferencesStore: preferencesStore, store: store)
+    }
+
+    /// Creates a fresh RenameEngine with current settings.
+    private static func createEngine(preferencesStore: PreferencesStore, store: CaptureContextStore) -> RenameEngine {
         let langCode = L10n.activeLanguageCode
-        self.namer = Self.createNamer(tier: preferencesStore.namerTier, languageCode: langCode)
-        let prefix = Self.resolvePrefix(preferencesStore: preferencesStore, languageCode: langCode)
-        self.engine = RenameEngine(namer: namer, store: store, groupByApp: preferencesStore.groupByApp, folderPrefix: prefix)
+        let namer = createNamer(tier: preferencesStore.namerTier, languageCode: langCode)
+        let prefix = resolvePrefix(preferencesStore: preferencesStore, languageCode: langCode)
+        return RenameEngine(namer: namer, store: store, groupByApp: preferencesStore.groupByApp, folderPrefix: prefix)
     }
 
     /// Factory: creates the best available namer.
@@ -62,6 +67,9 @@ final class PipelineController {
 
     func start() {
         guard state == .stopped else { return }
+
+        // Recreate engine with current settings (prefix, namer tier, groupByApp)
+        self.engine = Self.createEngine(preferencesStore: preferencesStore, store: store)
 
         let screenshotFolder = preferencesStore.screenshotFolder
 
