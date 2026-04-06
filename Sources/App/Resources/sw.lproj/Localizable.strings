@@ -38,6 +38,12 @@
 "prefs.sendEmail" = "Tuma barua pepe";
 "prefs.copied" = "Imenakiliwa!";
 
+/* AppEntry — Welcome (First Launch) */
+"alert.welcomeTitle" = "Karibu SmartScreenShot";
+"alert.welcomeBody" = "SmartScreenShot inabadilisha jina za picha zako za skrini kwa majina yenye maana.\n\nIli kuanza, inahitaji ruhusa ya kufikia folda ambapo macOS inahifadhi picha (kawaida Desktop).\n\nUnaweza kuchagua folda maalum au kutumia mahali pa kawaida.";
+"alert.welcomeChooseFolder" = "Chagua folda";
+"alert.welcomeUseDefault" = "Tumia Desktop";
+
 /* AppEntry — Accessibility Alert */
 "alert.accessibilityTitle" = "Ruhusa ya Ufikiaji (si lazima)";
 "alert.accessibilityBody" = "SmartScreenShot inafanya kazi vizuri na ruhusa ya Ufikiaji — inagundua vitufe vya picha ili kutambua programu inayotumika.\n\nBila hiyo, picha bado zinabadilishwa jina moja kwa moja, lakini muktadha wa programu unaweza kuwa si sahihi sana.\n\nToa ruhusa katika Mipangilio ya Mfumo › Faragha na Usalama › Ufikiaji kwa matumizi bora.";

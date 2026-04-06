@@ -38,6 +38,12 @@
 "prefs.sendEmail" = "Send Email";
 "prefs.copied" = "Copied!";
 
+/* AppEntry — Welcome (First Launch) */
+"alert.welcomeTitle" = "Welcome to SmartScreenShot";
+"alert.welcomeBody" = "SmartScreenShot automatically renames your screenshots with meaningful names.\n\nTo get started, it needs access to the folder where macOS saves screenshots (usually your Desktop).\n\nYou can choose a specific folder or use the default location.";
+"alert.welcomeChooseFolder" = "Choose Folder";
+"alert.welcomeUseDefault" = "Use Default (Desktop)";
+
 /* AppEntry — Accessibility Alert */
 "alert.accessibilityTitle" = "Accessibility Permission (Optional)";
 "alert.accessibilityBody" = "SmartScreenShot works best with Accessibility access — it detects screenshot keystrokes to capture which app you're in.\n\nWithout it, screenshots are still auto-renamed, but app context may be less accurate.\n\nGrant access in System Settings › Privacy & Security › Accessibility for the best experience.";

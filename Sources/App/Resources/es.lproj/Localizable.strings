@@ -38,6 +38,12 @@
 "prefs.sendEmail" = "Enviar email";
 "prefs.copied" = "¡Copiado!";
 
+/* AppEntry — Welcome (First Launch) */
+"alert.welcomeTitle" = "Bienvenido a SmartScreenShot";
+"alert.welcomeBody" = "SmartScreenShot renombra automáticamente tus capturas de pantalla con nombres significativos.\n\nPara empezar, necesita acceso a la carpeta donde macOS guarda las capturas (normalmente el Escritorio).\n\nPuedes elegir una carpeta específica o usar la ubicación predeterminada.";
+"alert.welcomeChooseFolder" = "Elegir carpeta";
+"alert.welcomeUseDefault" = "Usar Escritorio";
+
 /* AppEntry — Accessibility Alert */
 "alert.accessibilityTitle" = "Permiso de accesibilidad (opcional)";
 "alert.accessibilityBody" = "SmartScreenShot funciona mejor con acceso de Accesibilidad — detecta los atajos de captura para identificar la aplicación activa.\n\nSin él, las capturas se renombran automáticamente, pero el contexto de la aplicación puede ser menos preciso.\n\nOtorga acceso en Ajustes del Sistema › Privacidad y Seguridad › Accesibilidad para la mejor experiencia.";
