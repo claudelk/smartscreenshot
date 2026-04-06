@@ -176,27 +176,6 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
 
         y -= 45
 
-        // --- Language ---
-        content.addSubview(makeLabel(L10n.string("prefs.language"), at: y))
-
-        let languageNames = ["System Default", "English", "Fran\u{00E7}ais", "Espa\u{00F1}ol", "Portugu\u{00EA}s", "Kiswahili"]
-        let languageCodes = ["system", "en", "fr", "es", "pt", "sw"]
-
-        let langPopup = NSPopUpButton(frame: NSRect(x: 160, y: y - 2, width: 200, height: 26), pullsDown: false)
-        langPopup.addItems(withTitles: languageNames)
-        langPopup.target = self
-        langPopup.action = #selector(languageChanged(_:))
-
-        let currentLang = preferencesStore.appLanguage
-        if let idx = languageCodes.firstIndex(of: currentLang) {
-            langPopup.selectItem(at: idx)
-        } else {
-            langPopup.selectItem(at: 0)
-        }
-        content.addSubview(langPopup)
-
-        y -= 45
-
         // --- Folder Prefix ---
         content.addSubview(makeLabel(L10n.string("prefs.folderPrefix"), at: y))
 
@@ -234,6 +213,27 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         suffixLabel.frame.size.width = 90
         content.addSubview(suffixLabel)
 
+        y -= 40
+
+        // --- Language ---
+        content.addSubview(makeLabel(L10n.string("prefs.language"), at: y))
+
+        let languageNames = ["System Default", "English", "Fran\u{00E7}ais", "Espa\u{00F1}ol", "Portugu\u{00EA}s", "Kiswahili"]
+        let languageCodes = ["system", "en", "fr", "es", "pt", "sw"]
+
+        let langPopup = NSPopUpButton(frame: NSRect(x: 160, y: y - 2, width: 200, height: 26), pullsDown: false)
+        langPopup.addItems(withTitles: languageNames)
+        langPopup.target = self
+        langPopup.action = #selector(languageChanged(_:))
+
+        let currentLang = preferencesStore.appLanguage
+        if let idx = languageCodes.firstIndex(of: currentLang) {
+            langPopup.selectItem(at: idx)
+        } else {
+            langPopup.selectItem(at: 0)
+        }
+        content.addSubview(langPopup)
+
         // --- Support & Feedback ---
         // Separator line
         let separator = NSBox()
@@ -241,29 +241,27 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         separator.frame = NSRect(x: 20, y: 75, width: 420, height: 1)
         content.addSubview(separator)
 
-        let feedbackTitle = makeLabel("Support & Feedback", at: 52, size: 12, color: .labelColor)
+        let feedbackTitle = makeLabel("Support & Feedback", at: 55, size: 12, color: .labelColor)
         feedbackTitle.frame.size.width = 200
         content.addSubview(feedbackTitle)
 
-        let emailLabel = makeLabel(Self.supportEmail, at: 52, size: 12, color: .secondaryLabelColor)
-        emailLabel.frame.origin.x = 160
-        emailLabel.frame.size.width = 180
+        let emailLabel = makeLabel(Self.supportEmail, at: 38, size: 11, color: .secondaryLabelColor)
+        emailLabel.frame.origin.x = 20
+        emailLabel.frame.size.width = 200
         emailLabel.isSelectable = true
         content.addSubview(emailLabel)
 
         let copyButton = NSButton(title: L10n.string("prefs.copyEmail"), target: self, action: #selector(copyEmail(_:)))
         copyButton.bezelStyle = .rounded
-        copyButton.controlSize = .small
-        copyButton.font = .systemFont(ofSize: 10)
-        copyButton.frame = NSRect(x: 340, y: 49, width: 55, height: 22)
+        copyButton.font = .systemFont(ofSize: 11)
+        copyButton.frame = NSRect(x: 280, y: 35, width: 85, height: 24)
         copyButton.tag = 500
         content.addSubview(copyButton)
 
         let sendButton = NSButton(title: L10n.string("prefs.sendEmail"), target: self, action: #selector(sendEmail(_:)))
         sendButton.bezelStyle = .rounded
-        sendButton.controlSize = .small
-        sendButton.font = .systemFont(ofSize: 10)
-        sendButton.frame = NSRect(x: 398, y: 49, width: 55, height: 22)
+        sendButton.font = .systemFont(ofSize: 11)
+        sendButton.frame = NSRect(x: 370, y: 35, width: 85, height: 24)
         content.addSubview(sendButton)
 
         // --- Version ---
