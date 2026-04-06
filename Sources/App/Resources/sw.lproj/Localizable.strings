@@ -1,5 +1,6 @@
 /* StatusBarController — Menu */
-"menu.takeScreenshot" = "Piga picha ya skrini";
+"menu.captureFullScreen" = "Nasa skrini nzima";
+"menu.captureArea" = "Nasa eneo lililochaguliwa";
 "menu.reanalyze" = "Changanua tena picha ya mwisho";
 "menu.batchRename" = "Badilisha majina kwa wingi…";
 "menu.openFolder" = "Fungua folda ya picha";

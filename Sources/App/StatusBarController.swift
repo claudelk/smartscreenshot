@@ -37,17 +37,27 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         let menu = NSMenu()
         menu.delegate = self
 
-        // Take Screenshot — shows system shortcut hint
-        let screenshotItem = NSMenuItem(
-            title: L10n.string("menu.takeScreenshot"),
-            action: #selector(takeScreenshot(_:)),
+        // Capture Full Screen — ⇧⌘3
+        let fullScreenItem = NSMenuItem(
+            title: L10n.string("menu.captureFullScreen"),
+            action: #selector(captureFullScreen(_:)),
             keyEquivalent: ""
         )
-        screenshotItem.target = self
-        // Show ⇧⌘3 as shortcut hint (non-functional, just visual)
-        screenshotItem.keyEquivalentModifierMask = [.shift, .command]
-        screenshotItem.keyEquivalent = "3"
-        menu.addItem(screenshotItem)
+        fullScreenItem.target = self
+        fullScreenItem.keyEquivalentModifierMask = [.shift, .command]
+        fullScreenItem.keyEquivalent = "3"
+        menu.addItem(fullScreenItem)
+
+        // Capture Selected Area — ⇧⌘4
+        let areaItem = NSMenuItem(
+            title: L10n.string("menu.captureArea"),
+            action: #selector(captureArea(_:)),
+            keyEquivalent: ""
+        )
+        areaItem.target = self
+        areaItem.keyEquivalentModifierMask = [.shift, .command]
+        areaItem.keyEquivalent = "4"
+        menu.addItem(areaItem)
 
         menu.addItem(.separator())
 
@@ -115,12 +125,24 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     // MARK: - Actions
 
-    @objc private func takeScreenshot(_ sender: NSMenuItem) {
-        // Trigger macOS screenshot tool (interactive area selection)
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-        task.arguments = ["-i"] // interactive selection
-        try? task.run()
+    @objc private func captureFullScreen(_ sender: NSMenuItem) {
+        statusItem.menu?.cancelTracking()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+            task.arguments = ["-x"] // silent full screen
+            try? task.run()
+        }
+    }
+
+    @objc private func captureArea(_ sender: NSMenuItem) {
+        statusItem.menu?.cancelTracking()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+            task.arguments = ["-ix"] // interactive selection, silent
+            try? task.run()
+        }
     }
 
     @objc private func reanalyzeLast(_ sender: NSMenuItem) {

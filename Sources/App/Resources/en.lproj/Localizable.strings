@@ -1,5 +1,6 @@
 /* StatusBarController — Menu */
-"menu.takeScreenshot" = "Take Screenshot";
+"menu.captureFullScreen" = "Capture Full Screen";
+"menu.captureArea" = "Capture Selected Area";
 "menu.reanalyze" = "Re-analyze Last Screenshot";
 "menu.batchRename" = "Batch Rename Screenshots…";
 "menu.openFolder" = "Open Screenshot Folder";
