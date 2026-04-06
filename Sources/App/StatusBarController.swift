@@ -20,6 +20,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         pipeline.onRenameCompleted = { [weak self] in
             self?.flashIcon()
         }
+        blinkOnStartup()
     }
 
     // MARK: - Setup
@@ -148,6 +149,21 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     @objc private func reanalyzeLast(_ sender: NSMenuItem) {
         flashIcon()
         pipeline.reanalyzeLast()
+    }
+
+    /// Blink the menu bar icon 3 times on startup so the user knows it's running.
+    private func blinkOnStartup() {
+        guard let button = statusItem.button else { return }
+        let original = button.image
+        var count = 0
+
+        func blink() {
+            guard count < 6 else { return } // 3 on + 3 off = 6 toggles
+            count += 1
+            button.image = (count % 2 == 1) ? nil : original
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { blink() }
+        }
+        blink()
     }
 
     /// Briefly flash the menu bar icon to indicate activity.
