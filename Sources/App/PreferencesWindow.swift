@@ -34,9 +34,9 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         }
 
         #if MAS
-        let windowHeight: CGFloat = 480
+        let windowHeight: CGFloat = 500
         #else
-        let windowHeight: CGFloat = 560
+        let windowHeight: CGFloat = 580
         #endif
 
         let w = NSWindow(
@@ -54,9 +54,9 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         content.autoresizingMask = [.width, .height]
 
         #if MAS
-        var y: CGFloat = 435
+        var y: CGFloat = 455
         #else
-        var y: CGFloat = 515
+        var y: CGFloat = 535
         #endif
 
         // --- Screenshot Folder ---
@@ -127,70 +127,6 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
 
         y -= 40
 
-        // --- Language ---
-        content.addSubview(makeLabel(L10n.string("prefs.language"), at: y))
-
-        let languageNames = ["System Default", "English", "Fran\u{00E7}ais", "Espa\u{00F1}ol", "Portugu\u{00EA}s", "Kiswahili"]
-        let languageCodes = ["system", "en", "fr", "es", "pt", "sw"]
-
-        let langPopup = NSPopUpButton(frame: NSRect(x: 160, y: y - 2, width: 200, height: 26), pullsDown: false)
-        langPopup.addItems(withTitles: languageNames)
-        langPopup.target = self
-        langPopup.action = #selector(languageChanged(_:))
-
-        let currentLang = preferencesStore.appLanguage
-        if let idx = languageCodes.firstIndex(of: currentLang) {
-            langPopup.selectItem(at: idx)
-        } else {
-            langPopup.selectItem(at: 0)
-        }
-        content.addSubview(langPopup)
-
-        y -= 45
-
-        // --- Folder Prefix ---
-        content.addSubview(makeLabel(L10n.string("prefs.folderPrefix"), at: y))
-
-        let langCode = L10n.activeLanguageCode
-        let defaultPrefix = FolderPrefix.prefix(for: langCode)
-        let today = {
-            let c = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-            return String(format: "%04d-%02d-%02d", c.year!, c.month!, c.day!)
-        }()
-
-        let defaultRadio = NSButton(radioButtonWithTitle: "\(L10n.string("prefs.folderPrefixDefault")) (\(defaultPrefix)_\(today))",
-                                     target: self, action: #selector(folderPrefixChanged(_:)))
-        defaultRadio.frame.origin = NSPoint(x: 160, y: y)
-        defaultRadio.tag = 400
-        defaultRadio.state = preferencesStore.useCustomFolderPrefix ? .off : .on
-        content.addSubview(defaultRadio)
-
-        y -= 25
-
-        let customRadio = NSButton(radioButtonWithTitle: L10n.string("prefs.folderPrefixCustom"),
-                                    target: self, action: #selector(folderPrefixChanged(_:)))
-        customRadio.frame.origin = NSPoint(x: 160, y: y)
-        customRadio.tag = 401
-        customRadio.state = preferencesStore.useCustomFolderPrefix ? .on : .off
-        content.addSubview(customRadio)
-
-        let prefixField = NSTextField(frame: NSRect(x: 260, y: y - 2, width: 100, height: 22))
-        prefixField.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
-        prefixField.stringValue = preferencesStore.customFolderPrefix
-        prefixField.placeholderString = "my-prefix"
-        prefixField.isEnabled = preferencesStore.useCustomFolderPrefix
-        prefixField.target = self
-        prefixField.action = #selector(customPrefixEdited(_:))
-        self.customPrefixField = prefixField
-        content.addSubview(prefixField)
-
-        let suffixLabel = makeLabel("_\(today)", at: y, size: 11, color: .secondaryLabelColor)
-        suffixLabel.frame.origin.x = 365
-        suffixLabel.frame.size.width = 90
-        content.addSubview(suffixLabel)
-
-        y -= 40
-
         // --- Launch at Login ---
         let launchCheckbox = NSButton(
             checkboxWithTitle: L10n.string("prefs.launchAtLogin"),
@@ -238,23 +174,96 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         content.addSubview(hotkeyLabel)
         #endif
 
-        // --- Support / Feedback ---
-        let supportLabel = makeLabel("\(L10n.string("prefs.support")) \(Self.supportEmail)", at: 50, size: 11, color: .secondaryLabelColor)
-        supportLabel.frame = NSRect(x: 20, y: 50, width: 280, height: 16)
-        supportLabel.isSelectable = true
-        content.addSubview(supportLabel)
+        y -= 45
+
+        // --- Language ---
+        content.addSubview(makeLabel(L10n.string("prefs.language"), at: y))
+
+        let languageNames = ["System Default", "English", "Fran\u{00E7}ais", "Espa\u{00F1}ol", "Portugu\u{00EA}s", "Kiswahili"]
+        let languageCodes = ["system", "en", "fr", "es", "pt", "sw"]
+
+        let langPopup = NSPopUpButton(frame: NSRect(x: 160, y: y - 2, width: 200, height: 26), pullsDown: false)
+        langPopup.addItems(withTitles: languageNames)
+        langPopup.target = self
+        langPopup.action = #selector(languageChanged(_:))
+
+        let currentLang = preferencesStore.appLanguage
+        if let idx = languageCodes.firstIndex(of: currentLang) {
+            langPopup.selectItem(at: idx)
+        } else {
+            langPopup.selectItem(at: 0)
+        }
+        content.addSubview(langPopup)
+
+        y -= 45
+
+        // --- Folder Prefix ---
+        content.addSubview(makeLabel(L10n.string("prefs.folderPrefix"), at: y))
+
+        let langCode = L10n.activeLanguageCode
+        let defaultPrefix = FolderPrefix.prefix(for: langCode)
+
+        let defaultRadio = NSButton(radioButtonWithTitle: "\(L10n.string("prefs.folderPrefixDefault")) (\(defaultPrefix)_YYYY-MM-DD)",
+                                     target: self, action: #selector(folderPrefixChanged(_:)))
+        defaultRadio.frame.origin = NSPoint(x: 160, y: y)
+        defaultRadio.tag = 400
+        defaultRadio.state = preferencesStore.useCustomFolderPrefix ? .off : .on
+        content.addSubview(defaultRadio)
+
+        y -= 25
+
+        let customRadio = NSButton(radioButtonWithTitle: L10n.string("prefs.folderPrefixCustom"),
+                                    target: self, action: #selector(folderPrefixChanged(_:)))
+        customRadio.frame.origin = NSPoint(x: 160, y: y)
+        customRadio.tag = 401
+        customRadio.state = preferencesStore.useCustomFolderPrefix ? .on : .off
+        content.addSubview(customRadio)
+
+        let prefixField = NSTextField(frame: NSRect(x: 260, y: y - 2, width: 100, height: 22))
+        prefixField.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        prefixField.stringValue = preferencesStore.customFolderPrefix
+        prefixField.placeholderString = "my-prefix"
+        prefixField.isEnabled = preferencesStore.useCustomFolderPrefix
+        prefixField.target = self
+        prefixField.action = #selector(customPrefixEdited(_:))
+        self.customPrefixField = prefixField
+        content.addSubview(prefixField)
+
+        let suffixLabel = makeLabel("_YYYY-MM-DD", at: y, size: 11, color: .secondaryLabelColor)
+        suffixLabel.frame.origin.x = 365
+        suffixLabel.frame.size.width = 90
+        content.addSubview(suffixLabel)
+
+        // --- Support & Feedback ---
+        // Separator line
+        let separator = NSBox()
+        separator.boxType = .separator
+        separator.frame = NSRect(x: 20, y: 75, width: 420, height: 1)
+        content.addSubview(separator)
+
+        let feedbackTitle = makeLabel("Support & Feedback", at: 52, size: 12, color: .labelColor)
+        feedbackTitle.frame.size.width = 200
+        content.addSubview(feedbackTitle)
+
+        let emailLabel = makeLabel(Self.supportEmail, at: 52, size: 12, color: .secondaryLabelColor)
+        emailLabel.frame.origin.x = 160
+        emailLabel.frame.size.width = 180
+        emailLabel.isSelectable = true
+        content.addSubview(emailLabel)
 
         let copyButton = NSButton(title: L10n.string("prefs.copyEmail"), target: self, action: #selector(copyEmail(_:)))
         copyButton.bezelStyle = .rounded
-        copyButton.font = .systemFont(ofSize: 11)
-        copyButton.frame = NSRect(x: 300, y: 46, width: 75, height: 24)
+        copyButton.controlSize = .small
+        copyButton.font = .systemFont(ofSize: 10)
+        copyButton.frame = NSRect(x: 340, y: 49, width: 55, height: 22)
         copyButton.tag = 500
         content.addSubview(copyButton)
 
         let sendButton = NSButton(title: L10n.string("prefs.sendEmail"), target: self, action: #selector(sendEmail(_:)))
         sendButton.bezelStyle = .rounded
-        sendButton.font = .systemFont(ofSize: 11)
-        sendButton.frame = NSRect(x: 378, y: 46, width: 75, height: 24)
+        sendButton.controlSize = .small
+        sendButton.font = .systemFont(ofSize: 10)
+        sendButton.frame = NSRect(x: 398, y: 49, width: 55, height: 22)
         content.addSubview(sendButton)
 
         // --- Version ---
@@ -336,7 +345,6 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         alert.alertStyle = .informational
 
         if alert.runModal() == .alertFirstButtonReturn {
-            // Relaunch the app
             let url = Bundle.main.bundleURL
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
@@ -351,7 +359,6 @@ final class PreferencesWindow: NSObject, NSWindowDelegate {
         preferencesStore.useCustomFolderPrefix = useCustom
         customPrefixField?.isEnabled = useCustom
 
-        // Update radio button states
         if let defaultRadio = window?.contentView?.viewWithTag(400) as? NSButton {
             defaultRadio.state = useCustom ? .off : .on
         }
