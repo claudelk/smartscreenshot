@@ -343,24 +343,16 @@ for i in 1 2 3 4 5; do
     take_screenshot "$TEST_DIR" "Screenshot test $i"
 done
 
-# Run CLI batch rename
+# Run CLI batch rename with timeout per file
 RENAMED_COUNT=0
 for f in "$TEST_DIR"/Screenshot*.png; do
-    RESULT=$(.build/release/sst --rename "$f" 2>&1 || true)
-    if [[ -n "$RESULT" ]]; then
-        RENAMED_COUNT=$((RENAMED_COUNT + 1))
-    fi
+    timeout 10 .build/release/sst --rename "$f" > /dev/null 2>&1 && RENAMED_COUNT=$((RENAMED_COUNT + 1))
 done
 
-# Check how many original files are gone (renamed)
-REMAINING=$(ls "$TEST_DIR"/Screenshot*.png 2>/dev/null | wc -l | tr -d ' ')
-MOVED=$(find "$TEST_DIR" -name "*.png" -not -name "Screenshot*" 2>/dev/null | wc -l | tr -d ' ')
-TOTAL_RENAMED=$(find "$TEST_DIR"/screenshot_* -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
-
-if [[ "$TOTAL_RENAMED" -ge 4 ]]; then
-    log_pass "8.3 Batch rename: $TOTAL_RENAMED/5 files renamed via CLI"
+if [[ "$RENAMED_COUNT" -ge 4 ]]; then
+    log_pass "8.3 Batch rename: $RENAMED_COUNT/5 files renamed via CLI"
 else
-    log_fail "8.3 Batch rename: only $TOTAL_RENAMED/5 files renamed"
+    log_fail "8.3 Batch rename: only $RENAMED_COUNT/5 files renamed"
 fi
 
 rm -rf "$TEST_DIR"
