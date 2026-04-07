@@ -1,5 +1,5 @@
 import AppKit
-import SmartScreenShotCore
+import CaptureFlowCore
 #if canImport(FoundationModels)
 import FoundationModels
 #endif
@@ -306,7 +306,7 @@ final class PreferencesWindow: NSObject, NSWindowDelegate, NSTextFieldDelegate {
         // --- Version ---
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
         let versionLabel = makeLabel(
-            "SmartScreenShot v\(version)",
+            "CaptureFlow v\(version)",
             at: 15,
             size: 11,
             color: .tertiaryLabelColor
@@ -458,7 +458,7 @@ final class PreferencesWindow: NSObject, NSWindowDelegate, NSTextFieldDelegate {
     }
 
     @objc private func sendEmail(_ sender: NSButton) {
-        if let url = URL(string: "mailto:\(Self.supportEmail)?subject=SmartScreenShot%20Feedback") {
+        if let url = URL(string: "mailto:\(Self.supportEmail)?subject=CaptureFlow%20Feedback") {
             NSWorkspace.shared.open(url)
         }
     }

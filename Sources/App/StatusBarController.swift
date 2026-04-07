@@ -1,5 +1,5 @@
 import AppKit
-import SmartScreenShotCore
+import CaptureFlowCore
 import UniformTypeIdentifiers
 
 /// Manages the NSStatusItem and its dropdown menu.

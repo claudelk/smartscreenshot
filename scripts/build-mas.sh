@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #==============================================================
-# SmartScreenShot — Mac App Store Build Pipeline
+# CaptureFlow — Mac App Store Build Pipeline
 #==============================================================
 #
 # Usage:
@@ -18,13 +18,13 @@ set -euo pipefail
 #==============================================================
 
 # --- Configuration ---
-APP_NAME="SmartScreenShot"
-BUNDLE_ID="com.smartscreenshot.app"
+APP_NAME="CaptureFlow"
+BUNDLE_ID="com.captureflow.app"
 VERSION="${VERSION:-1.0.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 DIST_DIR="$PROJECT_DIR/.build/dist-mas"
-ENTITLEMENTS="$PROJECT_DIR/Distribution/SmartScreenShot-MAS.entitlements"
+ENTITLEMENTS="$PROJECT_DIR/Distribution/CaptureFlow-MAS.entitlements"
 INFO_PLIST="$PROJECT_DIR/Distribution/Info.plist"
 ICON="$PROJECT_DIR/Distribution/AppIcon.icns"
 

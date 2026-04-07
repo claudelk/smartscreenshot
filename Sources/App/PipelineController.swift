@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import SmartScreenShotCore
+import CaptureFlowCore
 #if canImport(FoundationModels)
 import FoundationModels
 #endif

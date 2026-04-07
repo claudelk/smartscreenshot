@@ -6,16 +6,16 @@
 "menu.batchRename" = "Badilisha majina kwa wingi…";
 "menu.openFolder" = "Fungua folda ya picha";
 "menu.preferences" = "Mapendeleo…";
-"menu.quit" = "Ondoka SmartScreenShot";
-"menu.accessibility" = "SmartScreenShot";
-"menu.accessibilityWorking" = "SmartScreenShot — inafanya kazi";
+"menu.quit" = "Ondoka CaptureFlow";
+"menu.accessibility" = "CaptureFlow";
+"menu.accessibilityWorking" = "CaptureFlow — inafanya kazi";
 
 /* StatusBarController — Batch Rename Dialog */
 "dialog.selectScreenshots" = "Chagua picha za kubadilisha jina";
 "dialog.rename" = "Badilisha jina";
 
 /* PreferencesWindow */
-"prefs.title" = "Mapendeleo ya SmartScreenShot";
+"prefs.title" = "Mapendeleo ya CaptureFlow";
 "prefs.saveScreenshotsTo" = "Hifadhi picha katika:";
 "prefs.namingMode" = "Hali ya majina:";
 "prefs.groupByApp" = "Pangilia picha kwa programu inayotumika";
@@ -49,25 +49,25 @@
 "prefs.copied" = "Imenakiliwa!";
 
 /* AppEntry — App Ready */
-"alert.appReady" = "SmartScreenShot inafanya kazi. Picha zako za skrini zitabadilishwa jina moja kwa moja.";
+"alert.appReady" = "CaptureFlow inafanya kazi. Picha zako za skrini zitabadilishwa jina moja kwa moja.";
 
 /* AppEntry — Welcome (First Launch) */
-"alert.welcomeTitle" = "Karibu SmartScreenShot";
-"alert.welcomeBody" = "SmartScreenShot inabadilisha jina za picha zako za skrini kwa majina yenye maana.\n\nIli kuanza, inahitaji ruhusa ya kufikia folda ambapo macOS inahifadhi picha (kawaida Desktop).\n\nUnaweza kuchagua folda maalum au kutumia mahali pa kawaida.";
+"alert.welcomeTitle" = "Karibu CaptureFlow";
+"alert.welcomeBody" = "CaptureFlow inabadilisha jina za picha zako za skrini kwa majina yenye maana.\n\nIli kuanza, inahitaji ruhusa ya kufikia folda ambapo macOS inahifadhi picha (kawaida Desktop).\n\nUnaweza kuchagua folda maalum au kutumia mahali pa kawaida.";
 "alert.welcomeChooseFolder" = "Chagua folda";
 "alert.welcomeUseDefault" = "Tumia Desktop";
 
 /* AppEntry — Accessibility Alert */
 "alert.accessibilityTitle" = "Ruhusa ya Ufikiaji (si lazima)";
-"alert.accessibilityBody" = "SmartScreenShot inafanya kazi vizuri na ruhusa ya Ufikiaji — inagundua vitufe vya picha ili kutambua programu inayotumika.\n\nBila hiyo, picha bado zinabadilishwa jina moja kwa moja, lakini muktadha wa programu unaweza kuwa si sahihi sana.\n\nToa ruhusa katika Mipangilio ya Mfumo › Faragha na Usalama › Ufikiaji kwa matumizi bora.";
+"alert.accessibilityBody" = "CaptureFlow inafanya kazi vizuri na ruhusa ya Ufikiaji — inagundua vitufe vya picha ili kutambua programu inayotumika.\n\nBila hiyo, picha bado zinabadilishwa jina moja kwa moja, lakini muktadha wa programu unaweza kuwa si sahihi sana.\n\nToa ruhusa katika Mipangilio ya Mfumo › Faragha na Usalama › Ufikiaji kwa matumizi bora.";
 "alert.openSettings" = "Fungua Mipangilio";
 "alert.continueWithout" = "Endelea bila";
 
 /* AppEntry — First Launch (MAS) */
-"alert.selectFolder" = "SmartScreenShot inahitaji ruhusa ya kufikia folda yako ya picha.\nChagua folda ambapo macOS inahifadhi picha (kawaida Desktop).";
+"alert.selectFolder" = "CaptureFlow inahitaji ruhusa ya kufikia folda yako ya picha.\nChagua folda ambapo macOS inahifadhi picha (kawaida Desktop).";
 
 /* Language Change */
 "alert.restartTitle" = "Kuanzisha upya kunahitajika";
-"alert.restartBody" = "Anzisha upya SmartScreenShot ili kutumia lugha mpya.";
+"alert.restartBody" = "Anzisha upya CaptureFlow ili kutumia lugha mpya.";
 "alert.restartNow" = "Anzisha upya sasa";
 "alert.restartLater" = "Baadaye";

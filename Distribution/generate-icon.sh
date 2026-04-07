@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Generate AppIcon.icns for SmartScreenShot
+# Generate AppIcon.icns for CaptureFlow
 #
 # Prerequisites: place a 1024x1024 PNG at Distribution/AppIcon-1024.png
 # You can export camera.viewfinder from SF Symbols.app at 1024x1024,

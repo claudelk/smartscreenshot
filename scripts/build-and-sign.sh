@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #==============================================================
-# SmartScreenShot — Build, Bundle, Sign, Notarize, DMG
+# CaptureFlow — Build, Bundle, Sign, Notarize, DMG
 #==============================================================
 #
 # Usage:
@@ -24,8 +24,8 @@ set -euo pipefail
 #==============================================================
 
 # --- Configuration ---
-APP_NAME="SmartScreenShot"
-BUNDLE_ID="com.smartscreenshot.app"
+APP_NAME="CaptureFlow"
+BUNDLE_ID="com.captureflow.app"
 VERSION="${VERSION:-1.0.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -43,7 +43,7 @@ if [ "${SKIP_NOTARIZE:-0}" != "1" ]; then
 fi
 
 echo "============================================"
-echo "  SmartScreenShot Build Pipeline v${VERSION}"
+echo "  CaptureFlow Build Pipeline v${VERSION}"
 echo "============================================"
 echo ""
 
@@ -102,7 +102,7 @@ echo "==> [3/7] Signing .app bundle..."
 codesign --deep --force --verify --verbose \
     --sign "$DEVELOPER_ID" \
     --options runtime \
-    --entitlements "${DIST_DIR}/SmartScreenShot.entitlements" \
+    --entitlements "${DIST_DIR}/CaptureFlow.entitlements" \
     --timestamp \
     "$APP_BUNDLE"
 

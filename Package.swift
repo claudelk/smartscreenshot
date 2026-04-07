@@ -2,38 +2,38 @@
 import PackageDescription
 
 let package = Package(
-    name: "SmartScreenShot",
+    name: "CaptureFlow",
     defaultLocalization: "en",
     platforms: [.macOS(.v13)],
     targets: [
         // Naming brain CLI — test slugs against any image
         .executableTarget(
             name: "sst",
-            dependencies: ["SmartScreenShotCore"],
+            dependencies: ["CaptureFlowCore"],
             path: "Sources/CLI"
         ),
         // Background daemon — watches screenshot folder and renames automatically
         .executableTarget(
             name: "ssd",
-            dependencies: ["SmartScreenShotCore"],
+            dependencies: ["CaptureFlowCore"],
             path: "Sources/Daemon"
         ),
         // Menu bar app — NSStatusItem with enable/disable, preferences, launch at login
         .executableTarget(
-            name: "SmartScreenShot",
-            dependencies: ["SmartScreenShotCore"],
+            name: "CaptureFlow",
+            dependencies: ["CaptureFlowCore"],
             path: "Sources/App",
             resources: [.process("Resources")]
         ),
         // Shared library — all naming tiers, daemon types, slug logic
         .target(
-            name: "SmartScreenShotCore",
+            name: "CaptureFlowCore",
             path: "Sources/Core"
         ),
         // Tests
         .testTarget(
-            name: "SmartScreenShotTests",
-            dependencies: ["SmartScreenShotCore"],
+            name: "CaptureFlowTests",
+            dependencies: ["CaptureFlowCore"],
             path: "Tests"
         )
     ]

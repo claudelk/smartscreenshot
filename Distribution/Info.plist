@@ -4,16 +4,16 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.smartscreenshot.app</string>
+    <string>com.captureflow.app</string>
 
     <key>CFBundleName</key>
-    <string>SmartScreenShot</string>
+    <string>CaptureFlow</string>
 
     <key>CFBundleDisplayName</key>
-    <string>SmartScreenShot</string>
+    <string>CaptureFlow</string>
 
     <key>CFBundleExecutable</key>
-    <string>SmartScreenShot</string>
+    <string>CaptureFlow</string>
 
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>

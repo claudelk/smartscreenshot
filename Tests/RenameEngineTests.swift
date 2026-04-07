@@ -1,5 +1,5 @@
 import XCTest
-@testable import SmartScreenShotCore
+@testable import CaptureFlowCore
 
 /// A mock namer that returns a predictable slug.
 private struct MockNamer: ImageNamer {
@@ -16,7 +16,7 @@ final class RenameEngineTests: XCTestCase {
     override func setUp() {
         super.setUp()
         tempDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("smartscreenshot-tests-\(UUID().uuidString)")
+            .appendingPathComponent("captureflow-tests-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
     }
 

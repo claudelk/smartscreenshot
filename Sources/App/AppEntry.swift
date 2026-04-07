@@ -2,7 +2,7 @@ import AppKit
 import UserNotifications
 
 @main
-struct SmartScreenShotApp {
+struct CaptureFlowApp {
 
     static func main() {
         let app = NSApplication.shared
@@ -12,7 +12,7 @@ struct SmartScreenShotApp {
         let prefsStore = PreferencesStore()
 
         // --- First-launch setup ---
-        let defaults = UserDefaults(suiteName: "com.smartscreenshot.preferences")
+        let defaults = UserDefaults(suiteName: "com.captureflow.preferences")
         let firstLaunchDone = defaults?.bool(forKey: "firstLaunchDone") ?? false
 
         if !firstLaunchDone {
@@ -95,7 +95,7 @@ struct SmartScreenShotApp {
         center.requestAuthorization(options: [.alert]) { granted, _ in
             guard granted else { return }
             let content = UNMutableNotificationContent()
-            content.title = "SmartScreenShot"
+            content.title = "CaptureFlow"
             content.body = L10n.string("alert.appReady")
             let request = UNNotificationRequest(
                 identifier: "appReady",
@@ -105,7 +105,7 @@ struct SmartScreenShotApp {
             center.add(request)
         }
 
-        print("SmartScreenShot ready.")
+        print("CaptureFlow ready.")
 
         withExtendedLifetime((statusBar, pipeline, prefsStore)) {
             app.run()

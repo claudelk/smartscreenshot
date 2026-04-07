@@ -6,16 +6,16 @@
 "menu.batchRename" = "Renombrar capturas por lote…";
 "menu.openFolder" = "Abrir carpeta de capturas";
 "menu.preferences" = "Preferencias…";
-"menu.quit" = "Salir de SmartScreenShot";
-"menu.accessibility" = "SmartScreenShot";
-"menu.accessibilityWorking" = "SmartScreenShot — procesando";
+"menu.quit" = "Salir de CaptureFlow";
+"menu.accessibility" = "CaptureFlow";
+"menu.accessibilityWorking" = "CaptureFlow — procesando";
 
 /* StatusBarController — Batch Rename Dialog */
 "dialog.selectScreenshots" = "Selecciona las capturas a renombrar";
 "dialog.rename" = "Renombrar";
 
 /* PreferencesWindow */
-"prefs.title" = "Preferencias de SmartScreenShot";
+"prefs.title" = "Preferencias de CaptureFlow";
 "prefs.saveScreenshotsTo" = "Guardar capturas en:";
 "prefs.namingMode" = "Modo de nombre:";
 "prefs.groupByApp" = "Agrupar capturas por aplicación activa";
@@ -49,25 +49,25 @@
 "prefs.copied" = "¡Copiado!";
 
 /* AppEntry — App Ready */
-"alert.appReady" = "SmartScreenShot está activo. Tus capturas se renombrarán automáticamente.";
+"alert.appReady" = "CaptureFlow está activo. Tus capturas se renombrarán automáticamente.";
 
 /* AppEntry — Welcome (First Launch) */
-"alert.welcomeTitle" = "Bienvenido a SmartScreenShot";
-"alert.welcomeBody" = "SmartScreenShot renombra automáticamente tus capturas de pantalla con nombres significativos.\n\nPara empezar, necesita acceso a la carpeta donde macOS guarda las capturas (normalmente el Escritorio).\n\nPuedes elegir una carpeta específica o usar la ubicación predeterminada.";
+"alert.welcomeTitle" = "Bienvenido a CaptureFlow";
+"alert.welcomeBody" = "CaptureFlow renombra automáticamente tus capturas de pantalla con nombres significativos.\n\nPara empezar, necesita acceso a la carpeta donde macOS guarda las capturas (normalmente el Escritorio).\n\nPuedes elegir una carpeta específica o usar la ubicación predeterminada.";
 "alert.welcomeChooseFolder" = "Elegir carpeta";
 "alert.welcomeUseDefault" = "Usar Escritorio";
 
 /* AppEntry — Accessibility Alert */
 "alert.accessibilityTitle" = "Permiso de accesibilidad (opcional)";
-"alert.accessibilityBody" = "SmartScreenShot funciona mejor con acceso de Accesibilidad — detecta los atajos de captura para identificar la aplicación activa.\n\nSin él, las capturas se renombran automáticamente, pero el contexto de la aplicación puede ser menos preciso.\n\nOtorga acceso en Ajustes del Sistema › Privacidad y Seguridad › Accesibilidad para la mejor experiencia.";
+"alert.accessibilityBody" = "CaptureFlow funciona mejor con acceso de Accesibilidad — detecta los atajos de captura para identificar la aplicación activa.\n\nSin él, las capturas se renombran automáticamente, pero el contexto de la aplicación puede ser menos preciso.\n\nOtorga acceso en Ajustes del Sistema › Privacidad y Seguridad › Accesibilidad para la mejor experiencia.";
 "alert.openSettings" = "Abrir Ajustes";
 "alert.continueWithout" = "Continuar sin";
 
 /* AppEntry — First Launch (MAS) */
-"alert.selectFolder" = "SmartScreenShot necesita acceso a tu carpeta de capturas.\nSelecciona la carpeta donde macOS guarda las capturas (normalmente el Escritorio).";
+"alert.selectFolder" = "CaptureFlow necesita acceso a tu carpeta de capturas.\nSelecciona la carpeta donde macOS guarda las capturas (normalmente el Escritorio).";
 
 /* Language Change */
 "alert.restartTitle" = "Reinicio requerido";
-"alert.restartBody" = "Reinicia SmartScreenShot para aplicar el nuevo idioma.";
+"alert.restartBody" = "Reinicia CaptureFlow para aplicar el nuevo idioma.";
 "alert.restartNow" = "Reiniciar ahora";
 "alert.restartLater" = "Más tarde";

@@ -1,5 +1,5 @@
 import XCTest
-@testable import SmartScreenShotCore
+@testable import CaptureFlowCore
 
 final class SlugGeneratorTests: XCTestCase {
 

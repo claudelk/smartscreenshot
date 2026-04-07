@@ -1,4 +1,4 @@
-# SmartScreenShot — Implementation Progress
+# CaptureFlow — Implementation Progress
 
 ---
 
@@ -7,7 +7,7 @@
 **Goal:** standalone `sst` binary that takes an image path and prints a filename slug.
 
 ### Implemented
-- `SmartScreenShotCore` SPM library target
+- `CaptureFlowCore` SPM library target
   - `ImageNamer` protocol + `CaptureContext` struct
   - `SlugGenerator` — kebab-case slug generation + OCR line scoring
   - `VisionOnlyNamer` — Tier 1 namer (OCR + scene classification)
@@ -68,13 +68,13 @@ swift build
 **Goal:** proper macOS menu bar app replacing the CLI daemon with GUI controls.
 
 ### Implemented
-- `SmartScreenShot` SPM executable target (`Sources/App/`)
+- `CaptureFlow` SPM executable target (`Sources/App/`)
 - `AppEntry.swift` — `@main` with `NSApplication.setActivationPolicy(.accessory)` (no Dock icon), Accessibility check via NSAlert
 - `PipelineController.swift` — wraps KeystrokeTap + ScreenshotWatcher + RenameEngine with `start()`/`stop()` lifecycle; tracks last processed file for re-analyze
 - `StatusBarController.swift` — NSStatusItem with SF Symbol `camera.viewfinder`, NSMenu with Enable/Disable, Re-analyze Last, Open Folder, Preferences, Quit
-- `PreferencesStore.swift` — UserDefaults wrapper (`com.smartscreenshot.app` suite)
+- `PreferencesStore.swift` — UserDefaults wrapper (`com.captureflow.app` suite)
 - `PreferencesWindow.swift` — programmatic NSWindow with tier selection, launch at login, stubbed browser/hotkey options
-- `LaunchAtLogin.swift` — installs/uninstalls `~/Library/LaunchAgents/com.smartscreenshot.plist`
+- `LaunchAtLogin.swift` — installs/uninstalls `~/Library/LaunchAgents/com.captureflow.plist`
 - `RenameEngine.process()` now returns `@discardableResult URL?` for destination tracking
 
 ### Design decisions
@@ -88,7 +88,7 @@ swift build
 ### Test it
 ```bash
 swift build
-.build/debug/SmartScreenShot
+.build/debug/CaptureFlow
 # Camera icon appears in menu bar — take a screenshot to test
 ```
 
@@ -131,12 +131,12 @@ sst --rename ~/Desktop/Screenshot*.png
 **Goal:** wrap SPM binary in a proper `.app` bundle, code sign with Developer ID, notarize, and package as DMG.
 
 ### Implemented
-- `Distribution/Info.plist` — app bundle metadata (CFBundleIdentifier `com.smartscreenshot.app`, LSUIElement, macOS 13+ minimum)
-- `Distribution/SmartScreenShot.entitlements` — production entitlements (`automation.apple-events` only, no sandbox, no get-task-allow)
+- `Distribution/Info.plist` — app bundle metadata (CFBundleIdentifier `com.captureflow.app`, LSUIElement, macOS 13+ minimum)
+- `Distribution/CaptureFlow.entitlements` — production entitlements (`automation.apple-events` only, no sandbox, no get-task-allow)
 - `Distribution/generate-icon.sh` — converts 1024x1024 PNG to `.icns` via `sips` + `iconutil`
 - `scripts/build-and-sign.sh` — full pipeline: release build → .app bundle → codesign → DMG → notarize → staple
 - `docs/code-signing.md` — prerequisites, identity setup, build commands, entitlements rationale
-- Updated `LaunchAtLogin.swift` fallback path to `/Applications/SmartScreenShot.app/Contents/MacOS/SmartScreenShot`
+- Updated `LaunchAtLogin.swift` fallback path to `/Applications/CaptureFlow.app/Contents/MacOS/CaptureFlow`
 
 ### Design decisions
 - **Developer ID + Notarization** (not Mac App Store) — App Sandbox conflicts with CGEventTap/Accessibility
@@ -161,7 +161,7 @@ export APPLE_ID="you@example.com"
 export TEAM_ID="TEAMID"
 export APP_PASSWORD="xxxx-xxxx-xxxx-xxxx"
 ./scripts/build-and-sign.sh
-# Output: .build/dist/SmartScreenShot-1.0.0.dmg
+# Output: .build/dist/CaptureFlow-1.0.0.dmg
 ```
 
 ---

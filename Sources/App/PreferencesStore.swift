@@ -1,12 +1,12 @@
 import Foundation
-import SmartScreenShotCore
+import CaptureFlowCore
 
 /// Persists user preferences via UserDefaults.
 final class PreferencesStore {
 
     private let defaults: UserDefaults
 
-    init(suiteName: String = "com.smartscreenshot.preferences") {
+    init(suiteName: String = "com.captureflow.preferences") {
         self.defaults = UserDefaults(suiteName: suiteName) ?? .standard
         registerDefaults()
     }

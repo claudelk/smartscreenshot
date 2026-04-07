@@ -1,8 +1,8 @@
-# SmartScreenShot — Distribution
+# CaptureFlow — Distribution
 
 ## Two Distribution Paths
 
-SmartScreenShot supports both direct distribution and Mac App Store via conditional compilation.
+CaptureFlow supports both direct distribution and Mac App Store via conditional compilation.
 
 ### Direct Distribution (Developer ID + DMG)
 
@@ -15,7 +15,7 @@ Build: `swift build -c release`
 
 ### Mac App Store (Sandbox)
 
-Build: `swift build -c release --target SmartScreenShot -Xswiftc -DMAS`
+Build: `swift build -c release --target CaptureFlow -Xswiftc -DMAS`
 
 - App Sandbox enabled — no CGEventTap, no global hotkey
 - App context captured via NSWorkspace.frontmostApplication at FSEvents time
@@ -41,7 +41,7 @@ The `MAS` Swift compiler flag controls feature availability:
 
 ## Sandbox Entitlements
 
-`Distribution/SmartScreenShot-MAS.entitlements`:
+`Distribution/CaptureFlow-MAS.entitlements`:
 - `com.apple.security.app-sandbox` — required for MAS
 - `com.apple.security.files.user-selected.read-write` — NSOpenPanel folder access
 

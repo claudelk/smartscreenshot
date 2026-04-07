@@ -1,4 +1,4 @@
-# SmartScreenShot — Testing Checklist
+# CaptureFlow — Testing Checklist
 
 ---
 
@@ -43,7 +43,7 @@ that cannot be automated. Mark each as PASS or FAIL. Add notes for any failures.
 - [ ] **2.6** After a rename, "Re-analyze Last Screenshot" is clickable
 - [ ] **2.7** Click "Re-analyze Last Screenshot" → file is re-renamed
 - [ ] **2.10** "Open Screenshot Folder" → opens folder in Finder
-- [ ] **2.11** "Quit SmartScreenShot" → app exits, icon disappears
+- [ ] **2.11** "Quit CaptureFlow" → app exits, icon disappears
 
 ### Menu Bar — Batch Rename Dialog
 

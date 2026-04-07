@@ -1,4 +1,4 @@
-# SmartScreenShot
+# CaptureFlow
 
 macOS menu bar utility that automatically renames screenshots with meaningful names.
 
@@ -48,7 +48,7 @@ swift build -c release
 
 ```bash
 swift build
-.build/debug/SmartScreenShot
+.build/debug/CaptureFlow
 ```
 
 A camera icon appears in the menu bar. Take a screenshot (Cmd+Shift+3/4/5) and it gets
@@ -102,7 +102,7 @@ See [docs/code-signing.md](docs/code-signing.md) for prerequisites and setup.
 
 - **Step 1** ✅ CLI naming brain (`sst`) — Vision OCR + scene classification
 - **Step 2** ✅ Background daemon (`ssd`) — CGEventTap + FSEvents + RenameEngine
-- **Step 3** ✅ Menu bar app (`SmartScreenShot`) — NSStatusItem + preferences + launch at login
+- **Step 3** ✅ Menu bar app (`CaptureFlow`) — NSStatusItem + preferences + launch at login
 - **Step 4** ✅ Batch rename (menu bar + CLI) + global hotkey
 - **Step 5** ✅ Code signing & notarization (Developer ID + DMG)
 - **Step 6** ✅ Enhanced naming — `FoundationModelsNamer` (macOS 26+, Apple Intelligence)

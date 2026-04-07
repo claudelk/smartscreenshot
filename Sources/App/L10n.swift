@@ -13,7 +13,7 @@ enum L10n {
 
     /// The resolved language code: user override → system preferred → "en".
     static var activeLanguageCode: String {
-        let stored = UserDefaults(suiteName: "com.smartscreenshot.preferences")?
+        let stored = UserDefaults(suiteName: "com.captureflow.preferences")?
             .string(forKey: "appLanguage") ?? "system"
 
         if stored != "system" && supportedLanguages.contains(stored) {

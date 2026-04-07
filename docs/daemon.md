@@ -1,4 +1,4 @@
-# SmartScreenShot Daemon — Design Notes
+# CaptureFlow Daemon — Design Notes
 
 The `ssd` binary is the always-on background agent that connects keystroke context to file rename.
 

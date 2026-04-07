@@ -1,4 +1,4 @@
-# SmartScreenShot — Project Structure
+# CaptureFlow — Project Structure
 
 macOS menu bar utility that automatically renames screenshots with meaningful names
 instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
@@ -9,7 +9,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 
 | File / Folder | Purpose |
 |---|---|
-| `Package.swift` | SPM package — four targets: `sst` (CLI), `ssd` (daemon), `SmartScreenShot` (menu bar app), `SmartScreenShotCore` (library) |
+| `Package.swift` | SPM package — four targets: `sst` (CLI), `ssd` (daemon), `CaptureFlow` (menu bar app), `CaptureFlowCore` (library) |
 | `README.md` | Project overview, build instructions, usage |
 | `PROGRESS.md` | Phase-by-phase implementation log and next steps |
 | `CLAUDE.md` | This file — canonical project structure |
@@ -20,7 +20,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 
 ---
 
-## Sources/Core/ — `SmartScreenShotCore` library target
+## Sources/Core/ — `CaptureFlowCore` library target
 
 | File | Purpose |
 |---|---|
@@ -36,7 +36,7 @@ instead of macOS's default "Screenshot 2026-03-29 at 1.19.49 PM" format.
 
 ---
 
-## Sources/App/ — `SmartScreenShot` executable target (menu bar app)
+## Sources/App/ — `CaptureFlow` executable target (menu bar app)
 
 | File | Purpose |
 |---|---|

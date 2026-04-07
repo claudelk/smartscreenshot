@@ -1,6 +1,6 @@
-# SmartScreenShot Menu Bar App — Design Notes
+# CaptureFlow Menu Bar App — Design Notes
 
-The `SmartScreenShot` binary is a macOS menu bar app (NSStatusItem) that replaces
+The `CaptureFlow` binary is a macOS menu bar app (NSStatusItem) that replaces
 the headless `ssd` daemon with GUI controls.
 
 ---
@@ -33,7 +33,7 @@ AppEntry.swift
 | Re-analyze Last Screenshot | — | Re-run namer on most recent file |
 | Open Screenshot Folder | — | `NSWorkspace.shared.open(folder)` |
 | Preferences... | ⌘, | Opens preferences window |
-| Quit SmartScreenShot | ⌘Q | `NSApplication.shared.terminate(nil)` |
+| Quit CaptureFlow | ⌘Q | `NSApplication.shared.terminate(nil)` |
 
 The toggle title updates dynamically via `NSMenuDelegate.menuWillOpen`.
 
@@ -48,13 +48,13 @@ The toggle title updates dynamically via `NSMenuDelegate.menuWillOpen`.
 | Browser URL capture | Stubbed (disabled) | `browserCaptureEnabled` |
 | Global hotkey | Stubbed (disabled) | — |
 
-Preferences are stored in `UserDefaults(suiteName: "com.smartscreenshot.app")`.
+Preferences are stored in `UserDefaults(suiteName: "com.captureflow.app")`.
 
 ---
 
 ## Launch at login
 
-`LaunchAtLogin` manages `~/Library/LaunchAgents/com.smartscreenshot.plist`:
+`LaunchAtLogin` manages `~/Library/LaunchAgents/com.captureflow.plist`:
 
 - **Install**: writes XML plist with `RunAtLoad: true`, `KeepAlive: false`
 - **Uninstall**: `launchctl bootout gui/{uid}` then deletes the plist file
@@ -93,7 +93,7 @@ or migrated to an Xcode project.
 
 ```bash
 swift build
-.build/debug/SmartScreenShot
+.build/debug/CaptureFlow
 ```
 
 On first run without Accessibility permission, an NSAlert prompts the user to grant access.

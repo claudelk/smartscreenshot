@@ -6,16 +6,16 @@
 "menu.batchRename" = "Batch Rename Screenshots…";
 "menu.openFolder" = "Open Screenshot Folder";
 "menu.preferences" = "Preferences…";
-"menu.quit" = "Quit SmartScreenShot";
-"menu.accessibility" = "SmartScreenShot";
-"menu.accessibilityWorking" = "SmartScreenShot — working";
+"menu.quit" = "Quit CaptureFlow";
+"menu.accessibility" = "CaptureFlow";
+"menu.accessibilityWorking" = "CaptureFlow — working";
 
 /* StatusBarController — Batch Rename Dialog */
 "dialog.selectScreenshots" = "Select screenshots to rename";
 "dialog.rename" = "Rename";
 
 /* PreferencesWindow */
-"prefs.title" = "SmartScreenShot Preferences";
+"prefs.title" = "CaptureFlow Preferences";
 "prefs.saveScreenshotsTo" = "Save screenshots to:";
 "prefs.namingMode" = "Naming Mode:";
 "prefs.groupByApp" = "Group screenshots by frontmost app";
@@ -49,25 +49,25 @@
 "prefs.copied" = "Copied!";
 
 /* AppEntry — App Ready */
-"alert.appReady" = "SmartScreenShot is running. Your screenshots will be automatically renamed.";
+"alert.appReady" = "CaptureFlow is running. Your screenshots will be automatically renamed.";
 
 /* AppEntry — Welcome (First Launch) */
-"alert.welcomeTitle" = "Welcome to SmartScreenShot";
-"alert.welcomeBody" = "SmartScreenShot automatically renames your screenshots with meaningful names.\n\nTo get started, it needs access to the folder where macOS saves screenshots (usually your Desktop).\n\nYou can choose a specific folder or use the default location.";
+"alert.welcomeTitle" = "Welcome to CaptureFlow";
+"alert.welcomeBody" = "CaptureFlow automatically renames your screenshots with meaningful names.\n\nTo get started, it needs access to the folder where macOS saves screenshots (usually your Desktop).\n\nYou can choose a specific folder or use the default location.";
 "alert.welcomeChooseFolder" = "Choose Folder";
 "alert.welcomeUseDefault" = "Use Default (Desktop)";
 
 /* AppEntry — Accessibility Alert */
 "alert.accessibilityTitle" = "Accessibility Permission (Optional)";
-"alert.accessibilityBody" = "SmartScreenShot works best with Accessibility access — it detects screenshot keystrokes to capture which app you're in.\n\nWithout it, screenshots are still auto-renamed, but app context may be less accurate.\n\nGrant access in System Settings › Privacy & Security › Accessibility for the best experience.";
+"alert.accessibilityBody" = "CaptureFlow works best with Accessibility access — it detects screenshot keystrokes to capture which app you're in.\n\nWithout it, screenshots are still auto-renamed, but app context may be less accurate.\n\nGrant access in System Settings › Privacy & Security › Accessibility for the best experience.";
 "alert.openSettings" = "Open Settings";
 "alert.continueWithout" = "Continue Without";
 
 /* AppEntry — First Launch (MAS) */
-"alert.selectFolder" = "SmartScreenShot needs access to your screenshot folder.\nSelect the folder where macOS saves screenshots (usually Desktop).";
+"alert.selectFolder" = "CaptureFlow needs access to your screenshot folder.\nSelect the folder where macOS saves screenshots (usually Desktop).";
 
 /* Language Change */
 "alert.restartTitle" = "Restart Required";
-"alert.restartBody" = "Restart SmartScreenShot to apply the new language.";
+"alert.restartBody" = "Restart CaptureFlow to apply the new language.";
 "alert.restartNow" = "Restart Now";
 "alert.restartLater" = "Later";

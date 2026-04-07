@@ -2,11 +2,11 @@
 set -euo pipefail
 
 #==============================================================
-# SmartScreenShot — Automated Integration Tests
+# CaptureFlow — Automated Integration Tests
 #==============================================================
 #
 # Prerequisites:
-#   - SmartScreenShot.app must be running (pipeline enabled)
+#   - CaptureFlow.app must be running (pipeline enabled)
 #   - The app must have Accessibility permission granted
 #
 # Usage:
@@ -40,7 +40,7 @@ log_fail() {
 # Get the screenshot folder from app preferences (or default to Desktop)
 get_screenshot_folder() {
     local override
-    override=$(defaults read com.smartscreenshot.preferences screenshotFolderOverride 2>/dev/null || true)
+    override=$(defaults read com.captureflow.preferences screenshotFolderOverride 2>/dev/null || true)
     if [[ -n "$override" ]]; then
         echo "$override"
     else
@@ -119,15 +119,15 @@ PYEOF
 
 # Helper to restart the app with new settings
 restart_app() {
-    killall SmartScreenShot 2>/dev/null || true
+    killall CaptureFlow 2>/dev/null || true
     sleep 1
     # Ad-hoc sign to preserve Accessibility permission across restarts
-    codesign -s - -f "$PWD/.build/dist/SmartScreenShot.app" 2>/dev/null
-    open "$PWD/.build/dist/SmartScreenShot.app" &
+    codesign -s - -f "$PWD/.build/dist/CaptureFlow.app" 2>/dev/null
+    open "$PWD/.build/dist/CaptureFlow.app" &
     sleep 4
     # Wait for app to actually be running
     local retries=5
-    while ! pgrep -x SmartScreenShot > /dev/null 2>&1 && (( retries > 0 )); do
+    while ! pgrep -x CaptureFlow > /dev/null 2>&1 && (( retries > 0 )); do
         sleep 1
         retries=$((retries - 1))
     done
@@ -139,11 +139,11 @@ SCREENSHOT_FOLDER=$(get_screenshot_folder)
 TODAY=$(date +%Y-%m-%d)
 
 # Reset test state — ensure clean defaults
-defaults write com.smartscreenshot.preferences groupByApp -bool false
-defaults write com.smartscreenshot.preferences isEnabled -bool true
+defaults write com.captureflow.preferences groupByApp -bool false
+defaults write com.captureflow.preferences isEnabled -bool true
 
 echo "============================================"
-echo "  SmartScreenShot Integration Tests"
+echo "  CaptureFlow Integration Tests"
 echo "============================================"
 echo ""
 echo "  Screenshot folder: $SCREENSHOT_FOLDER"
@@ -151,20 +151,20 @@ echo "  Date: $TODAY"
 echo ""
 
 # Ensure app is running with clean state
-if pgrep -x SmartScreenShot > /dev/null 2>&1; then
+if pgrep -x CaptureFlow > /dev/null 2>&1; then
     # App is already running — kill and restart to pick up clean defaults
     restart_app
 else
     # Not running — just launch
-    codesign -s - -f "$PWD/.build/dist/SmartScreenShot.app" 2>/dev/null || true
-    open "$PWD/.build/dist/SmartScreenShot.app" &
+    codesign -s - -f "$PWD/.build/dist/CaptureFlow.app" 2>/dev/null || true
+    open "$PWD/.build/dist/CaptureFlow.app" &
     sleep 4
-    if ! pgrep -x SmartScreenShot > /dev/null 2>&1; then
-        echo "ERROR: SmartScreenShot failed to launch."
+    if ! pgrep -x CaptureFlow > /dev/null 2>&1; then
+        echo "ERROR: CaptureFlow failed to launch."
         exit 1
     fi
 fi
-echo "  App PID: $(pgrep -x SmartScreenShot)"
+echo "  App PID: $(pgrep -x CaptureFlow)"
 echo ""
 
 # --- Test 1: Basic Pipeline ---
@@ -215,7 +215,7 @@ echo ""
 echo "--- 4. Group by App ---"
 
 # 4.1 — Default is off
-GROUP_BY_APP=$(defaults read com.smartscreenshot.preferences groupByApp 2>/dev/null || echo "0")
+GROUP_BY_APP=$(defaults read com.captureflow.preferences groupByApp 2>/dev/null || echo "0")
 if [[ "$GROUP_BY_APP" == "0" ]]; then
     log_pass "4.1 groupByApp is off by default"
 else
@@ -227,8 +227,8 @@ fi
 log_pass "4.2 With groupByApp off, folder is screenshot_ (verified in 1.2b)"
 
 # 4.3/4.4 — Enable groupByApp, verify setting persists
-defaults write com.smartscreenshot.preferences groupByApp -bool true
-GROUP_VAL=$(defaults read com.smartscreenshot.preferences groupByApp 2>/dev/null)
+defaults write com.captureflow.preferences groupByApp -bool true
+GROUP_VAL=$(defaults read com.captureflow.preferences groupByApp 2>/dev/null)
 if [[ "$GROUP_VAL" == "1" ]]; then
     log_pass "4.3 groupByApp setting toggled on successfully"
 else
@@ -241,7 +241,7 @@ fi
 echo "  ⏭️  4.4 Skipped — requires real screenshot keystroke (manual test)"
 
 # 4.5 — Disable groupByApp, verify back to screenshot_
-defaults write com.smartscreenshot.preferences groupByApp -bool false
+defaults write com.captureflow.preferences groupByApp -bool false
 restart_app
 
 touch_marker
@@ -301,7 +301,7 @@ log_pass "9.3 All landed in screenshot_${TODAY}/ folder"
 echo ""
 echo "--- 2. Pipeline Enable/Disable ---"
 
-defaults write com.smartscreenshot.preferences isEnabled -bool false
+defaults write com.captureflow.preferences isEnabled -bool false
 restart_app
 
 touch_marker
@@ -318,7 +318,7 @@ fi
 [[ -f "$SHOT_PATH" ]] && rm -f "$SHOT_PATH"
 
 # Re-enable
-defaults write com.smartscreenshot.preferences isEnabled -bool true
+defaults write com.captureflow.preferences isEnabled -bool true
 restart_app
 
 touch_marker

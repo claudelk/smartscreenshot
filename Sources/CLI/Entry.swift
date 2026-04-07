@@ -1,10 +1,10 @@
 import Foundation
 import CoreGraphics
 import ImageIO
-import SmartScreenShotCore
+import CaptureFlowCore
 
 @main
-struct SmartScreenShotCLI {
+struct CaptureFlowCLI {
 
     static func main() async {
         let parsed = parseArgs()

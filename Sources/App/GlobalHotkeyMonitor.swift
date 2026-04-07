@@ -1,6 +1,6 @@
 #if !MAS
 import AppKit
-import SmartScreenShotCore
+import CaptureFlowCore
 
 /// Monitors a global keyboard shortcut and triggers a rename on the newest screenshot.
 ///

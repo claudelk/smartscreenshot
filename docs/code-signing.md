@@ -1,4 +1,4 @@
-# SmartScreenShot — Code Signing & Distribution
+# CaptureFlow — Code Signing & Distribution
 
 ## Distribution model
 
@@ -42,7 +42,7 @@ export APP_PASSWORD="xxxx-xxxx-xxxx-xxxx"
 ./scripts/build-and-sign.sh
 ```
 
-Output: `.build/dist/SmartScreenShot-1.0.0.dmg`
+Output: `.build/dist/CaptureFlow-1.0.0.dmg`
 
 ## Local testing (skip notarization)
 
@@ -75,18 +75,18 @@ The app does not use any APIs that conflict with Hardened Runtime.
 ## App bundle structure
 
 ```
-SmartScreenShot.app/
+CaptureFlow.app/
   Contents/
     Info.plist          (bundle ID, version, LSUIElement)
     MacOS/
-      SmartScreenShot   (release binary, code-signed)
+      CaptureFlow   (release binary, code-signed)
     Resources/
       AppIcon.icns      (optional, from generate-icon.sh)
 ```
 
 ## LaunchAgent
 
-The LaunchAgent plist (`~/Library/LaunchAgents/com.smartscreenshot.plist`) uses
+The LaunchAgent plist (`~/Library/LaunchAgents/com.captureflow.plist`) uses
 `Bundle.main.executablePath` to resolve the binary path. When running from a `.app`
 bundle, this correctly resolves to:
-`/Applications/SmartScreenShot.app/Contents/MacOS/SmartScreenShot`
+`/Applications/CaptureFlow.app/Contents/MacOS/CaptureFlow`

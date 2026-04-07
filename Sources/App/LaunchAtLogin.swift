@@ -31,23 +31,23 @@ struct LaunchAtLogin {
 import Foundation
 
 /// Manages a LaunchAgent plist for "launch at login" functionality.
-/// Installs/uninstalls ~/Library/LaunchAgents/com.smartscreenshot.plist.
+/// Installs/uninstalls ~/Library/LaunchAgents/com.captureflow.plist.
 struct LaunchAtLogin {
 
-    private let label = "com.smartscreenshot"
+    private let label = "com.captureflow"
     private let plistURL: URL
 
     init() {
         let launchAgentsDir = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/LaunchAgents")
-        self.plistURL = launchAgentsDir.appendingPathComponent("com.smartscreenshot.plist")
+        self.plistURL = launchAgentsDir.appendingPathComponent("com.captureflow.plist")
     }
 
     /// Install the LaunchAgent plist. Creates ~/Library/LaunchAgents/ if needed.
     func install() {
         let executablePath = Bundle.main.executablePath
             ?? ProcessInfo.processInfo.arguments.first
-            ?? "/Applications/SmartScreenShot.app/Contents/MacOS/SmartScreenShot"
+            ?? "/Applications/CaptureFlow.app/Contents/MacOS/CaptureFlow"
 
         let plist: [String: Any] = [
             "Label": label,

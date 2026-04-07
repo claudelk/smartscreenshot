@@ -1,12 +1,12 @@
 import AppKit
 import Foundation
-import SmartScreenShotCore
+import CaptureFlowCore
 
 @main
-struct SmartScreenShotDaemon {
+struct CaptureFlowDaemon {
 
     static func main() {
-        print("SmartScreenShot daemon starting...")
+        print("CaptureFlow daemon starting...")
 
         // Check Accessibility — required for CGEventTap
         if !AXIsProcessTrusted() {
